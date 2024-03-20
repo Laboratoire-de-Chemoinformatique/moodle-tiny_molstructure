@@ -31,6 +31,7 @@ export default {
         form: 'form',
         canvas: {
             selector2D: '.molstructure_2D_iframe',
+            selector3D: '.molstructure_3D_iframe',
             ketcherviewId: '#sketcher-viewer-tiny',
             heightInputLabel: '#label_height_input_molstructure',
             widthInputLabel: '#label_width_input_molstructure',

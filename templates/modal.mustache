@@ -39,7 +39,32 @@
         {{#str}} dialogtitle, tiny_molstructure {{/str}}
     {{/title}}
     {{$body}}
-        {{> tiny_molstructure/modal_2D}}
+        <ul class="nav nav-tabs" role="tablist" id="molstructure-navbar-{{elementid}}">
+            <li class="nav-item">
+                <a class="nav-link" id="molstructure-tab-2D-{{elementid}}" data-toggle="tab"
+                   role="tab" aria-controls="molstructure-tabcontent-2D-{{elementid}}"
+                   aria-selected="false" href="#molstructure-tabcontent-2D-{{elementid}}"
+                >
+                    {{#str}}2Dcanvas,tiny_molstructure{{/str}}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="molstructure-tab-3D-{{elementid}}" data-toggle="tab"
+                   role="tab" aria-controls="molstructure-tabcontent-3D-{{elementid}}"
+                   aria-selected="false" href="#molstructure-tabcontent-3D-{{elementid}}">
+                    {{#str}}3Dcanvas,tiny_molstructure{{/str}}
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content" id="molstructure_divcontent_{{elementid}}">
+            <div class="fade tab-pane" id="molstructure-tabcontent-2D-{{elementid}}" role="tab-panel" aria-labeled="molstructure-tab-2D-{{elementid}}">
+                {{> tiny_molstructure/modal_2D}}
+            </div>
+            <div class="fade tab-pane" id="molstructure-tabcontent-3D-{{elementid}}" role="tab-panel" aria-labeled="molstructure-tab-3D-{{elementid}}">
+                {{> tiny_molstructure/modal_3D}}
+            </div>
+        </div>
+
     {{/body}}
     {{$footer}}
         <button type="button" class="btn btn-primary" data-action="save">{{#str}} insertimage, tiny_molstructure{{/str}}</button>
