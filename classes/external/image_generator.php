@@ -27,6 +27,7 @@
 namespace tiny_molstructure\external;
 defined('MOODLE_INTERNAL') || die();
 
+use context;
 use context_user;
 use external_api;
 use external_function_parameters;
@@ -34,38 +35,43 @@ use external_single_structure;
 use external_value;
 use stdClass;
 
-global $CFG;
-
-require_once("$CFG->dirroot/lib/editor/tiny/plugins/molstructure/lib.php");
 /**
  * Generate an image with datas provided by image dataUrl representation
- * @itemId int item id, drafitemid of the tiny editor
- * @imageDataUrl dataUrl representing the image to upload
  */
 class image_generator extends external_api {
+    /**
+     * external function parameters
+     * @return external_function_parameters
+     */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'itemId' => new external_value(PARAM_INT, 'itemid', VALUE_REQUIRED),
+            'itemId' => new external_value(PARAM_TEXT, 'itemid', VALUE_REQUIRED),
             'imageDataUrl' => new external_value(PARAM_RAW, 'DataImageUrl', VALUE_REQUIRED),
+            'contextId' => new external_value(PARAM_INT, 'editor contextid', VALUE_REQUIRED),
         ]);
     }
 
     /**
+     * create a file from imagedatas and return its url
      * @param string $itemid
-     * @param string $filename
      * @param string $imagedataurl
+     * @param int $contextid
      * @return array
      * @throws \invalid_parameter_exception
      */
-    public static function execute(string $itemid, string $imagedataurl): array {
+    public static function execute(string $itemid, string $imagedataurl, int $contextid): array {
         global $CFG, $USER;
         [
             'itemId' => $itemid,
-            'imageDataUrl' => $imagedataurl
+            'imageDataUrl' => $imagedataurl,
+            'contextId' => $contextid,
         ] = self::validate_parameters(self::execute_parameters(), [
             'itemId' => $itemid,
             'imageDataUrl' => $imagedataurl,
+            'contextId' => $contextid,
         ]);
+        $context = context::instance_by_id($contextid);
+        self::validate_context($context);
         $usercontext = context_user::instance($USER->id);
         $fs       = get_file_storage();
         $filename = "upfile_" . time(). '_' . floor(mt_rand() / mt_getrandmax() * 1000) . ".png";
@@ -99,6 +105,10 @@ class image_generator extends external_api {
         ];
     }
 
+    /**
+     * external function return parameters
+     * @return external_single_structure
+     */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'fileUrl' => new external_value(PARAM_RAW, 'File url'),

@@ -24,6 +24,9 @@
  */
 namespace tiny_molstructure\privacy;
 
+/**
+ * Provider for this plugin
+ */
 class provider implements \core_privacy\local\metadata\null_provider {
 
     /**

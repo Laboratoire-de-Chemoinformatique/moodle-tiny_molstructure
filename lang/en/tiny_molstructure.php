@@ -25,6 +25,7 @@
  */
 
 $string['pluginname'] = 'Chemical substance';
+$string['buttontitle'] = 'Chemical substance';
 $string['alreadyexistingfile'] = 'File already existed, it has been rewritten.';
 $string['Xfilestored'] = 'Stored the file with filename: {$a}';
 $string['unabletosaveXfile'] = '"Unable to save file with filename: {$a}';

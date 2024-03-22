@@ -1,5 +1,6 @@
 /* Molstructure css */
-.molstructure_2D_iframe, .molstructure_3D_iframe {
+.molstructure_2D_iframe,
+.molstructure_3D_iframe {
     width: 100%;
     height: 100vh;
 
@@ -16,12 +17,11 @@
     align-self: center;
     padding: 1px;
 }
-.tiny_molstructure_wrapper .inputs_size div{
+.tiny_molstructure_wrapper .inputs_size div {
     padding: 1px;
 }
 
 div.modal-content:has(.molstructure_2D_iframe),
-div.modal-content:has(.molstructure_3D_iframe)
-{
-    height:100vh;
+div.modal-content:has(.molstructure_3D_iframe) {
+    height: 100vh;
 }

@@ -27,13 +27,19 @@ import Selectors from 'tiny_molstructure/selectors';
 import {get_string as getString} from 'core/str';
 import {component} from 'tiny_molstructure/common';
 
-export const initCanvas2D = async(editor, iframeBody, sketcherWidth=400, sketcherHeight=200, sketcherViewerWidth=100, sketcherViewerHeight=100) => {
+export const initCanvas2D = async(editor,
+                                  iframeBody,
+                                  sketcherWidth=400,
+                                  sketcherHeight=200,
+                                  sketcherViewerWidth=100,
+                                  sketcherViewerHeight=100) => {
   const iframeContent = iframeBody.contentDocument;
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
   ChemDoodle.ELEMENT['H'].jmolColor = 'black';
   ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
   // Main ketcher.
-  const sketcher = new ChemDoodle.SketcherCanvas('sketcher', sketcherWidth, sketcherHeight, {useServices:false, requireStartingAtom: false});
+  const sketcher = new ChemDoodle.SketcherCanvas('sketcher', sketcherWidth, sketcherHeight,
+    {useServices:false, requireStartingAtom: false});
   // We init the ketcher with an empty molecule object.
   ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
   sketcher.styles.atoms_displayTerminalCarbonLabels_2D = true;
@@ -62,7 +68,7 @@ export const initCanvas2D = async(editor, iframeBody, sketcherWidth=400, sketche
     for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
       this.molecules[i].check();
     }
-  }
+  };
   iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer;
   iframeContent.querySelector(Selectors.elements.canvas.resizeButton).addEventListener('click', function_resize, iframeBody);
   // Need this for firefow ESR < 120 since has is not present by default

@@ -19,6 +19,7 @@
  * @module      tiny_molstructure/options
  * @copyright   2024 University of Strasbourg unistra.fr
  * @author Céline Pervès <louis.plyer@unistra.fr>
+ * @author Louis Plyer <louis.plyer@unistra.fr>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

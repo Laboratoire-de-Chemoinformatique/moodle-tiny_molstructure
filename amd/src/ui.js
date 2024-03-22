@@ -54,11 +54,11 @@ export const displayDialogue = async(editor) => {
     });
 
     modalPromises.show();
-    const $root = await modalPromises.getRoot();
+    const root = await modalPromises.getRoot();
 
 
     // Init canvas 2D.
-    let editorRoot = $root[0];
+    let editorRoot = root[0];
     const iframeBody2D = editorRoot.querySelector(Selectors.elements.canvas.selector2D);
     const iframeBody3D = editorRoot.querySelector(Selectors.elements.canvas.selector3D);
     iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
@@ -73,19 +73,19 @@ export const displayDialogue = async(editor) => {
     });
     // Due to firefox need to force tab selection
 
-    $root.on(ModalEvents.hidden, (e) => {
+    root.on(ModalEvents.hidden, (e) => {
         const submitAction = e.target.closest(Selectors.actions.submit);
         if (submitAction) {
             e.preventDefault();
             // Select current iframe
-            const currentFrame = window.document.querySelector('div[id^="molstructure_divcontent_"] div.tab-pane.active.show iframe')
+            const currentFrame = window.document.querySelector(Selectors.elements.canvas.selector2D);
             insertImage(currentFrame, editor);
         }
         modalPromises.destroy();
     });
-    $root.on(ModalEvents.save, (e) => {
+    root.on(ModalEvents.save, (e) => {
         e.preventDefault();
-        const currentFrame = window.document.querySelector('div[id^="molstructure_divcontent_"] div.tab-pane.active.show iframe')
+        const currentFrame = window.document.querySelector(Selectors.elements.canvas.selector2D);
         insertImage(currentFrame, editor);
         modalPromises.destroy();
     });

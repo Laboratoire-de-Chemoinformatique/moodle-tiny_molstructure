@@ -44,18 +44,35 @@ use filter_manager;
  */
 class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menuitems, plugin_with_configuration {
 
+    /**
+     * return available buttons
+     * @return string[]
+     */
     public static function get_available_buttons(): array {
         return [
             'tiny_molstructure/molstructure',
         ];
     }
 
+    /**
+     * return availble menu items
+     * @return string[]
+     */
     public static function get_available_menuitems(): array {
         return [
             'tiny_molstructure/molstructure',
         ];
     }
 
+    /**
+     * return configuration context
+     * @param context $context
+     * @param array $options
+     * @param array $fpoptions
+     * @param editor|null $editor
+     * @return array
+     * @throws \dml_exception
+     */
     public static function get_plugin_configuration_for_context(context $context, array $options, array $fpoptions,
         ?editor $editor = null): array {
         if (isset($options['context'])) {
