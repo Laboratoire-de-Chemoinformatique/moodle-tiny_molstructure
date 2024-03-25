@@ -29,10 +29,11 @@ defined('MOODLE_INTERNAL') || die();
 
 use context;
 use context_user;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use invalid_parameter_exception;
 use stdClass;
 
 /**
@@ -57,7 +58,7 @@ class image_generator extends external_api {
      * @param string $imagedataurl
      * @param int $contextid
      * @return array
-     * @throws \invalid_parameter_exception
+     * @throws invalid_parameter_exception
      */
     public static function execute(string $itemid, string $imagedataurl, int $contextid): array {
         global $CFG, $USER;
