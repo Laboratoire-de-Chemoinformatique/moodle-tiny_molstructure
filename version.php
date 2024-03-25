@@ -30,3 +30,4 @@ $plugin->component = 'tiny_molstructure';
 $plugin->release = '2.0.0';
 $plugin->version = 2024032500;
 $plugin->requires = 2023100903;
+$plugin->maturity   = MATURITY_STABLE;
