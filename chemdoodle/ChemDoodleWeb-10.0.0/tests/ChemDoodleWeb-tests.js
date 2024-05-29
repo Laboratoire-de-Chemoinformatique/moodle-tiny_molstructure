@@ -1,9 +1,9 @@
 //
-// ChemDoodle Web Components 9.4.0
+// ChemDoodle Web Components 10.0.0
 //
 // https://web.chemdoodle.com
 //
-// Copyright 2009-2022 iChemLabs, LLC.  All rights reserved.
+// Copyright 2009-2024 iChemLabs, LLC.  All rights reserved.
 //
 // The ChemDoodle Web Components library is licensed under version 3
 // of the GNU GENERAL PUBLIC LICENSE.
@@ -79,9 +79,11 @@ let jcampStructureCNMR = '##TITLE=PARACETAMOL (4-ACETAMIDO PHENOL) 13C{1H} /300K
 
 // this will cause a toolbar to be shown about qunit
 // we can disable the toolbar, but need it for some tests of dialogs
-let SKETCHER = new ChemDoodle.SketcherCanvas('test', 0, 0, {oneMolecule:false, useServices:true, includeQuery:true, includeToolbar:true, casFunctionalGroups:true});
-ChemDoodle.lib.jQuery('#test').hide(0);
-ChemDoodle.lib.jQuery('#test_buttons_lasso_dd_hidden').parent().hide(0);
+let SKETCHER = new ChemDoodle.SketcherCanvas('test', 0, 0, {oneMolecule:false, useServices:true, includeQuery:true, includeToolbar:true, floatDrawTools:true, casFunctionalGroups:true});
+document.getElementById('test').style.display = 'none';
+document.getElementById('test_buttons_bond_hidden').style.display = 'none';
+document.getElementById('test_floating_toolbar').style.display = 'none';
+document.getElementById('test_buttons_lasso_dd_hidden').parentElement.style.display = 'none';
 module('imageDepot');
 
 test('Check imageDepot class exists', function() {
@@ -1198,7 +1200,7 @@ test('Test writing and reading formal charge, multiple molecules', function() {
     equal(0, mol[0].bonds.length, 'Check 0 bonds, molecule 0');
     equal(0, mol[1].bonds.length, 'Check 0 bonds, molecule 1');
     equal(1, mol[0].atoms[0].charge, 'Sodium charge is +1');
-    equal(1, mol[0].atoms[0].charge, 'Chlorine charge is -1');
+    equal(-1, mol[1].atoms[0].charge, 'Chlorine charge is -1');
 });
 module('JSONInterpreter');
 
@@ -1290,6 +1292,40 @@ test('Check Line survives', function() {
 	equal(3, shape2.p2.x, 'Second x coordinate is preserved');
 	equal(4, shape2.p2.y, 'Second y coordinate is preserved');
 	equal(ChemDoodle.structures.d2.Line.ARROW_RETROSYNTHETIC, shape2.arrowType, 'Arrow type is preserved');
+});
+
+test('Check Line survives with reactants and products', function() {
+	expect(9);
+	let json = new ChemDoodle.io.JSONInterpreter();
+	
+	let r1 = new ChemDoodle.structures.Molecule();
+	r1.atoms.push(new ChemDoodle.structures.Atom('O'));
+	let r2 = new ChemDoodle.structures.Molecule();
+	r2.atoms.push(new ChemDoodle.structures.Atom('N'));
+	let p1 = new ChemDoodle.structures.Molecule();
+	p1.atoms.push(new ChemDoodle.structures.Atom('P'));
+	let p2 = new ChemDoodle.structures.Molecule();
+	p2.atoms.push(new ChemDoodle.structures.Atom('S'));
+	
+    let shape = new ChemDoodle.structures.d2.Line(new ChemDoodle.structures.Point(1, 2), new ChemDoodle.structures.Point(3, 4));
+    shape.arrowType = ChemDoodle.structures.d2.Line.ARROW_RETROSYNTHETIC;
+    shape.reactants.push(r1.atoms[0]);
+    shape.reactants.push(r2.atoms[0]);
+    shape.products.push(p1.atoms[0]);
+    shape.products.push(p2.atoms[0]);
+    
+	let dummy = json.contentTo([r1, r2, p1, p2], [shape]);
+	ok(dummy, 'Output is not undefined');
+	let content = json.contentFrom(dummy);
+	equal(1, content.shapes.length, 'Shape is preserved');
+	let shape2 = content.shapes[0];
+	ok(shape2 instanceof ChemDoodle.structures.d2.Line, 'Object is a Line');
+	equal(2, shape2.reactants.length, 'There are 2 reactants');
+	equal(2, shape2.products.length, 'There are 2 products');
+	equal('O', shape2.reactants[0].label, 'First reactant is O');
+	equal('N', shape2.reactants[1].label, 'Second reactant is N');
+	equal('P', shape2.products[0].label, 'First product is P');
+	equal('S', shape2.products[1].label, 'Second product is S');
 });
 
 test('Check Pusher survives', function() {
@@ -1937,6 +1973,151 @@ test('Check write undefined molecules array', function() {
 	let shape1 = new ChemDoodle.structures.d2.Line(new ChemDoodle.structures.Point(1, 2), new ChemDoodle.structures.Point(3, 4));
 	let content = ChemDoodle.writeJSON(undefined, [shape1]);
 	ok(content.length>20, 'Content written');
+});
+
+
+test('Check write persistent IDs', function() {
+	expect(137);
+	// aspirin
+	let aspirinJSON = {"a":[{"x":84.67249609375,"y":97.50000000000001,"i":"a0","l":"O"},{"x":67.35249609375,"y":107.50000000000001,"i":"a1"},{"x":101.99449609375,"y":107.50000000000001,"i":"a2"},{"x":67.35249609375,"y":127.50000000000001,"i":"a3","l":"O"},{"x":50.03249609375,"y":97.50000000000001,"i":"a4"},{"x":101.99449609375,"y":127.50000000000001,"i":"a5"},{"x":119.31449609375,"y":97.50000000000001,"i":"a6"},{"x":119.31449609375,"y":137.5,"i":"a7"},{"x":119.31449609375,"y":77.50000000000001,"i":"a8"},{"x":136.63449609375,"y":107.50000000000001,"i":"a9"},{"x":136.63449609375,"y":127.50000000000001,"i":"a10"},{"x":136.63449609375,"y":67.50000000000001,"i":"a11","l":"O"},{"x":101.99449609375,"y":67.50000000000001,"i":"a12","l":"O"}],"b":[{"b":0,"e":2,"i":"b0"},{"b":0,"e":1,"i":"b1"},{"b":11,"e":8,"i":"b2"},{"b":12,"e":8,"i":"b3","o":2},{"b":3,"e":1,"i":"b4","o":2},{"b":2,"e":6,"i":"b5"},{"b":2,"e":5,"i":"b6","o":2},{"b":6,"e":9,"i":"b7","o":2},{"b":6,"e":8,"i":"b8"},{"b":5,"e":7,"i":"b9"},{"b":9,"e":10,"i":"b10"},{"b":7,"e":10,"i":"b11","o":2},{"b":1,"e":4,"i":"b12"}]};
+	let json = new ChemDoodle.io.JSONInterpreter();
+	let aspirin = json.molFrom(aspirinJSON);
+	let content = json.contentTo([aspirin], []);
+	ok(content, 'Content written');
+	let hash = {};
+	let mout = content.m[0];
+	ok(mout.i, 'Molecule has an id');
+	if(hash[mout.i]){
+		ok(false, 'Molecule ID duplicated');
+		hash[mout.i] = mout;
+	}
+	equal('m', mout.i.charAt(0), 'Molecule id starts with m');
+	let moutid = mout.i;
+	for(let i = 0, ii=mout.a.length; i<ii; i++){
+		let a = mout.a[i];
+		ok(a.i, 'Atom has an id');
+		if(hash[a.i]){
+			ok(false, 'Atom ID duplicated');
+			hash[a.i] = a;
+		}
+		equal('a', a.i.charAt(0), 'Atom id starts with a');
+	}
+	for(let i = 0, ii=mout.b.length; i<ii; i++){
+		let b = mout.b[i];
+		ok(b.i, 'Bond has an id');
+		if(hash[b.i]){
+			ok(false, 'Bond ID duplicated');
+			hash[b.i] = b;
+		}
+		equal('b', b.i.charAt(0), 'Bond id starts with b');
+	}
+	
+	// hack it so object pids are output to the JSON
+	for(let i = 0, ii=aspirin.atoms.length; i<ii; i++){
+		aspirin.atoms[i].label = 'a'+aspirin.atoms[i].pid;
+	}
+	for(let i = 0, ii=aspirin.bonds.length; i<ii; i++){
+		aspirin.bonds[i].stereo = 'b'+aspirin.bonds[i].pid;
+	}
+	
+	// randomize
+	function shuffle(array) {
+	  let currentIndex = array.length,  randomIndex;
+	
+	  // While there remain elements to shuffle.
+	  while (currentIndex != 0) {
+	
+	    // Pick a remaining element.
+	    randomIndex = Math.floor(Math.random() * currentIndex);
+	    currentIndex--;
+	
+	    // And swap it with the current element.
+	    [array[currentIndex], array[randomIndex]] = [
+	      array[randomIndex], array[currentIndex]];
+	  }
+	
+	  return array;
+	}
+	
+	shuffle(aspirin.atoms);
+	shuffle(aspirin.bonds);
+	
+	content = json.contentTo([aspirin], []);
+	ok(content, 'Content written');
+	mout = content.m[0];
+	ok(mout.i, 'Molecule has an id');
+	if(hash[mout.i]){
+		ok(false, 'Molecule ID duplicated');
+		hash[mout.i] = mout;
+	}
+	equal('m', mout.i.charAt(0), 'Molecule id starts with m');
+	equal(moutid, mout.i, 'Molecule has same persistent ID');
+	for(let i = 0, ii=mout.a.length; i<ii; i++){
+		let a = mout.a[i];
+		ok(a.i, 'Atom has an id');
+		if(hash[a.i]){
+			ok(false, 'Atom ID duplicated');
+			hash[a.i] = a;
+		}
+		equal('a', a.i.charAt(0), 'Atom id starts with a');
+		// no change in pid
+		equal(a.l, a.i);
+	}
+	for(let i = 0, ii=mout.b.length; i<ii; i++){
+		let b = mout.b[i];
+		ok(b.i, 'Bond has an id');
+		if(hash[b.i]){
+			ok(false, 'Bond ID duplicated');
+			hash[b.i] = b;
+		}
+		equal('b', b.i.charAt(0), 'Bond id starts with b');
+		// no change in pid
+		equal(b.s, b.i);
+	}
+	
+});
+
+test('Check write persistent IDs when molecules joined', function() {
+	expect(5);
+	let m1 = {"a":[{"x":139,"y":178.84375,"i":"a0"},{"x":156.32050807568876,"y":168.84375,"i":"a1","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"}]};
+	let m2 = {"a":[{"x":139,"y":178.84375,"i":"a0"},{"x":156.32050807568876,"y":168.84375,"i":"a1","l":"N"}],"b":[{"b":0,"e":1,"i":"b0"}]};
+	let json = new ChemDoodle.io.JSONInterpreter();
+	let m1in = json.molFrom(m1);
+	let m2in = json.molFrom(m2);
+	let content = json.contentTo([m1in, m2in], []);
+	ok(content, 'Content written');
+	let m1pid = content.m[0].i;
+	let m2pid = content.m[1].i;
+	ok(m1pid!==m2pid, 'Persistent IDs of both molecules are different');
+	let merged = new ChemDoodle.structures.Molecule();
+	merged.atoms = m1in.atoms.concat(m2in.atoms);
+	merged.bonds = m1in.bonds.concat(m2in.bonds);
+	merged.atoms.push(new ChemDoodle.structures.Bond(m1in.atoms[1], m2in.atoms[1]));
+	content = json.contentTo([merged], []);
+	ok(content, 'Content written');
+	equal(1, content.m.length);
+	ok(content.m[0].i===m1pid || content.m[0].i===m2pid);
+});
+
+test('Check write persistent IDs when molecule separated', function() {
+	expect(4);
+	let butane = {"a":[{"x":139,"y":178.84375,"i":"a0"},{"x":156.32050807568876,"y":168.84375,"i":"a1"},{"x":173.64101615137753,"y":178.84375,"i":"a2"},{"x":190.9615242270663,"y":168.84375,"i":"a3"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":2,"e":3,"i":"b2"}]};
+	let json = new ChemDoodle.io.JSONInterpreter();
+	let butanein = json.molFrom(butane);
+	let content = json.contentTo([butanein], []);
+	ok(content, 'Content written');
+	let butanepid = content.m[0].i;
+	// remove middle bond
+	butanein.bonds.splice(1, 1);
+	let splitup = new ChemDoodle.informatics.Splitter().split(butanein);
+	content = json.contentTo(splitup, []);
+	ok(content, 'Content written');
+	equal(2, content.m.length);
+	ok(content.m[0].i===butanepid || content.m[1].i===butanepid);
+});
+
+test('Check write persistent IDs when PIDs are deleted on core objects', function() {
+	expect(0);
 });
 module('JCAMPInterpreter');
 
@@ -2850,6 +3031,17 @@ test('Check File package exists', function() {
 	expect(1);
 	ok(ChemDoodle.io.file, 'ChemDoodle.io.file package exists');
 });
+
+test('Check file content function', function(assert) {
+	assert.expect(1);
+	const done = assert.async();
+	// almost every site should have a robots.txt
+	ChemDoodle.io.file.content('/robots.txt', function(result){
+		assert.ok(result.length>100, 'robots.txt is read');
+		done();
+	});
+});
+	
 module('Extensions');
 
 test('Check stringStarsWith success', function() {
@@ -2901,6 +3093,41 @@ test('Check featureDetection package exists', function() {
 	expect(1);
 	ok(ChemDoodle.featureDetection, 'ChemDoodle.featureDetection package exists');
 });
+
+test('Check supports canvas', function(){
+	// all current browsers should support canvas
+	expect(1);
+	ok(ChemDoodle.featureDetection.supports_canvas(), 'canvas is supported');
+});
+
+test('Check supports canvas text', function(){
+	// all current browsers should support canvas text
+	expect(1);
+	ok(ChemDoodle.featureDetection.supports_canvas_text(), 'canvas text is supported');
+});
+
+test('Check supports webgl', function(){
+	// all current browsers should support webgl
+	expect(1);
+	ok(ChemDoodle.featureDetection.supports_webgl(), 'webgl is supported');
+});
+
+test('Check supports xhr2', function(){
+	// all current browsers should support xhr2
+	expect(1);
+	ok(ChemDoodle.featureDetection.supports_xhr2(), 'xhr2 is supported');
+});
+
+test('Check supports touch events', function(){
+	expect(1);
+	ok(ChemDoodle.featureDetection.supports_touch, 'touch events function exists');
+});
+
+test('Check supports gesture events', function(){
+	expect(1);
+	ok(ChemDoodle.featureDetection.supports_gesture, 'gesture events function exists');
+});
+
 module('Extensions');
 
 test('Check extensions package exists', function() {
@@ -3736,8 +3963,6 @@ test('Check angleBounds', function(){
 });
 module('iChemLabs');
 
-ChemDoodle.iChemLabs.asynchronous = false;
-
 test('Check url is valid', function() {
 	expect(2);
 	ok(ChemDoodle.iChemLabs.SERVER_URL.startsWith('http://') || ChemDoodle.iChemLabs.SERVER_URL.startsWith('https://') || ChemDoodle.iChemLabs.SERVER_URL==='/cdcloud.php', 'SERVER_URL correctly uses http or https protocol');
@@ -3766,247 +3991,268 @@ test('Check INFO', function() {
 	equal(ChemDoodle.lib.jQuery.ui.version, ChemDoodle.iChemLabs.INFO.v_jQuery_ui, 'v_jQuery_ui is correct.');
 });
 
-test('Check optimize 2D', function() {
+test('Check optimize 2D', function(assert) {
 	expect(3);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
 	mol.atoms[1] = new ChemDoodle.structures.Atom();
 	mol.bonds[0] = new ChemDoodle.structures.Bond(mol.atoms[0], mol.atoms[1]);
+	const done = assert.async();
 	ChemDoodle.iChemLabs.optimize(mol, {
 		dimension : 2
 	}, function() {
+		equal(2, mol.atoms.length, 'Check the number of atoms');
+		equal(1, mol.bonds.length, 'Check the number of bonds');
+		ok(Math.abs(20 - mol.atoms[0].distance(mol.atoms[1])) < .0001, 'Check bond distance');
+		done();
 	});
-	equal(2, mol.atoms.length, 'Check the number of atoms');
-	equal(1, mol.bonds.length, 'Check the number of bonds');
-	ok(Math.abs(20 - mol.atoms[0].distance(mol.atoms[1])) < .0001, 'Check bond distance');
 });
 
-test('Check optimize 3D', function() {
+test('Check optimize 3D', function(assert) {
 	expect(3);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
 	mol.atoms[1] = new ChemDoodle.structures.Atom();
 	mol.bonds[0] = new ChemDoodle.structures.Bond(mol.atoms[0], mol.atoms[1]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.optimize(mol, {
 		dimension : 3
 	}, function(returned) {
-		result = returned;
-	});
-	// atoms and bonds are more because hydrogens should have been added
-	equal(8, result.atoms.length, 'Check the number of atoms');
-	equal(7, result.bonds.length, 'Check the number of bonds');
-	let c1, c2;
-	for ( let i = 0, ii = result.atoms.length; i < ii; i++) {
-		let a = result.atoms[i];
-		if (a.label === 'C') {
-			if (c1) {
-				c2 = a;
-			} else {
-				c1 = a;
+		let result = returned;
+		// atoms and bonds are more because hydrogens should have been added
+		equal(8, result.atoms.length, 'Check the number of atoms');
+		equal(7, result.bonds.length, 'Check the number of bonds');
+		let c1, c2;
+		for ( let i = 0, ii = result.atoms.length; i < ii; i++) {
+			let a = result.atoms[i];
+			if (a.label === 'C') {
+				if (c1) {
+					c2 = a;
+				} else {
+					c1 = a;
+				}
 			}
 		}
-	}
-	equal(1.53, c1.distance(c2), 'Check bond distance');
-});
-
-test('Check readSMILES', function() {
-	expect(3);
-	let result;
-	ChemDoodle.iChemLabs.readSMILES('CCC', {}, function(returned) {
-		result = returned;
+		equal(1.53, c1.distance(c2), 'Check bond distance');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	equal(3, result.atoms.length, 'Check the number of atoms');
-	equal(2, result.bonds.length, 'Check the number of bonds');
 });
 
-test('Check readSMILES kekulizes', function() {
+test('Check readSMILES', function(assert) {
 	expect(5);
-	let result;
-	ChemDoodle.iChemLabs.readSMILES('c1ccccc1', {}, function(returned) {
-		result = returned;
+	const done = assert.async();
+	ChemDoodle.iChemLabs.readSMILES('CCC', {}, function(returned) {
+		let result = returned;
+		equal(1, result.molecules.length);
+		equal(0, result.shapes.length);
+		let m = result.molecules[0];
+		ok(m instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		equal(3, m.atoms.length, 'Check the number of atoms');
+		equal(2, m.bonds.length, 'Check the number of bonds');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	equal(6, result.atoms.length, 'Check the number of atoms');
-	equal(6, result.bonds.length, 'Check the number of bonds');
-	let singleCount = 0;
-	let doubleCount = 0;
-	for ( let i = 0, ii = result.bonds.length; i < ii; i++) {
-		let bO = result.bonds[i].bondOrder;
-		if (bO === 1) {
-			singleCount++;
-		} else if (bO === 2) {
-			doubleCount++;
-		}
-	}
-	equal(3, singleCount);
-	equal(3, doubleCount);
 });
 
-test('Check writeSMILES', function() {
+test('Check readSMILES kekulizes', function(assert) {
+	expect(5);
+	const done = assert.async();
+	ChemDoodle.iChemLabs.readSMILES('c1ccccc1', {'kekulize':true}, function(returned) {
+		let result = returned;
+		let m = result.molecules[0];
+		ok(m instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		equal(6, m.atoms.length, 'Check the number of atoms');
+		equal(6, m.bonds.length, 'Check the number of bonds');
+		let singleCount = 0;
+		let doubleCount = 0;
+		for ( let i = 0, ii = m.bonds.length; i < ii; i++) {
+			let bO = m.bonds[i].bondOrder;
+			if (bO === 1) {
+				singleCount++;
+			} else if (bO === 2) {
+				doubleCount++;
+			}
+		}
+		equal(3, singleCount);
+		equal(3, doubleCount);
+		done();
+	});
+});
+
+test('Check writeSMILES', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
 	mol.atoms[1] = new ChemDoodle.structures.Atom();
 	mol.bonds[0] = new ChemDoodle.structures.Bond(mol.atoms[0], mol.atoms[1]);
-	let result;
-	ChemDoodle.iChemLabs.writeSMILES(mol, {}, function(returned) {
-		result = returned;
+	const done = assert.async();
+	ChemDoodle.iChemLabs.writeSMILES([mol], [], {}, function(returned) {
+		let result = returned;
+		equal('CC', result, 'Check SMILES string is correct');
+		done();
 	});
-	equal('CC', result, 'Check SMILES string is correct');
 });
 
-test('Check saveFile', function() {
+test('Check saveFile', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.saveFile(mol, {
 		ext : 'icl'
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		let protocol = result.substring(0, 7);
+		ok(protocol=='http://'||protocol=='https:/', 'Check url begins correctly');
+		equal('.icl', result.substring(result.length - 4), 'Check url ends correctly');
+		done();
 	});
-	let protocol = result.substring(0, 7);
-	ok(protocol=='http://'||protocol=='https:/', 'Check url begins correctly');
-	equal('.icl', result.substring(result.length - 4), 'Check url ends correctly');
 });
 
-test('Check getMoleculeFromDatabase 2D from PubChem', function() {
+test('Check getMoleculeFromDatabase 2D from PubChem', function(assert) {
 	expect(3);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getMoleculeFromDatabase('caffeine', {
 		database : 'pubchem'
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		equal(14, result.atoms.length, 'Check the number of atoms');
+		equal(15, result.bonds.length, 'Check the number of bonds');
+		ok(Math.abs(20 - result.atoms[0].distance(result.atoms[1])) < .01, 'Check the bond length');
+		done();
 	});
-	equal(14, result.atoms.length, 'Check the number of atoms');
-	equal(15, result.bonds.length, 'Check the number of bonds');
-	ok(Math.abs(20 - result.atoms[0].distance(result.atoms[1])) < .01, 'Check the bond length');
 });
 
-test('Check getMoleculeFromDatabase 2D from ChemSpider', function() {
+test('Check getMoleculeFromDatabase 2D from ChemSpider', function(assert) {
 	expect(3);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getMoleculeFromDatabase('caffeine', {
 		database : 'chemspider'
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		equal(14, result.atoms.length, 'Check the number of atoms');
+		equal(15, result.bonds.length, 'Check the number of bonds');
+		ok(result.atoms[0].distance(result.atoms[1])>10, 'Check the bond length');
+		done();
 	});
-	equal(14, result.atoms.length, 'Check the number of atoms');
-	equal(15, result.bonds.length, 'Check the number of bonds');
-	ok(result.atoms[0].distance(result.atoms[1])>10, 'Check the bond length');
 });
 
-test('Check getMoleculeFromDatabase 3D from PubChem', function() {
+test('Check getMoleculeFromDatabase 3D from PubChem', function(assert) {
 	expect(3);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getMoleculeFromDatabase('methane', {
 		database : 'pubchem',
 		dimension : 3
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		equal(5, result.atoms.length, 'Check the number of atoms');
+		equal(4, result.bonds.length, 'Check the number of bonds');
+		ok(result.bonds[0].a1.distance(result.bonds[0].a2)<1, 'Check the bond length');
+		done();
 	});
-	equal(5, result.atoms.length, 'Check the number of atoms');
-	equal(4, result.bonds.length, 'Check the number of bonds');
-	ok(result.bonds[0].a1.distance(result.bonds[0].a2)<1, 'Check the bond length');
 });
 
-test('Check getMoleculeFromContent 2D from SLN', function() {
+test('Check getMoleculeFromContent 2D from SLN', function(assert) {
 	expect(2);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getMoleculeFromContent('CH3CH2CH3', {
 		format : 'sln'
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		equal(3, result.atoms.length, 'Check the number of atoms');
+		equal(2, result.bonds.length, 'Check the number of bonds');
+		done();
 	});
-	equal(3, result.atoms.length, 'Check the number of atoms');
-	equal(2, result.bonds.length, 'Check the number of bonds');
 });
 
-test('Check calculate', function() {
+test('Check calculate', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.calculate(mol, {
 		descriptors : [ 'mf', 'mw' ]
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		equal('CH4', result.mf, 'Check molecular formula');
+		equal(16.04252, result.mw, 'Check molecular mass');
+		done();
 	});
-	equal('CH4', result.mf, 'Check molecular formula');
-	equal(16.0425, result.mw, 'Check molecular mass');
 });
 
-test('Check simulate1HNMR', function() {
+test('Check simulate1HNMR', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.simulate1HNMR(mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result instanceof ChemDoodle.structures.Spectrum, 'Check that the returned object is the correct class');
+		equal(531, result.data.length, 'Check the number of points in the plot');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Spectrum, 'Check that the returned object is the correct class');
-	equal(531, result.data.length, 'Check the number of points in the plot');
 });
 
-test('Check simulate13CNMR', function() {
+test('Check simulate13CNMR', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.simulate13CNMR(mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result instanceof ChemDoodle.structures.Spectrum, 'Check that the returned object is the correct class');
+		equal(531, result.data.length, 'Check the number of points in the plot');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Spectrum, 'Check that the returned object is the correct class');
-	equal(531, result.data.length, 'Check the number of points in the plot');
 });
 
-test('Check simulateMassParentPeak', function() {
+test('Check simulateMassParentPeak', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.simulateMassParentPeak(mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result instanceof ChemDoodle.structures.Spectrum, 'Check that the returned object is the correct class');
+		equal(3, result.data.length, 'Check the number of points in the plot');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Spectrum, 'Check that the returned object is the correct class');
-	equal(2, result.data.length, 'Check the number of points in the plot');
 });
 
-test('Check getOptimizedPDBStructure', function() {
+test('Check getOptimizedPDBStructure', function(assert) {
 	expect(6);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getOptimizedPDBStructure('1CRN', {
 		withAtoms : true
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		ok(result.fromJSON, 'Check that molecule is correctly tagged as coming from JSON');
+		equal(0, result.atoms.length, 'Check the number of atoms');
+		equal(0, result.bonds.length, 'Check the number of bonds');
+		ok(result.chains, 'Check that chains are present');
+		equal(1, result.chains.length, 'Check the number of chains');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	ok(result.fromJSON, 'Check that molecule is correctly tagged as coming from JSON');
-	equal(0, result.atoms.length, 'Check the number of atoms');
-	equal(0, result.bonds.length, 'Check the number of bonds');
-	ok(result.chains, 'Check that chains are present');
-	equal(1, result.chains.length, 'Check the number of chains');
 });
 
-test('Check getOptimizedPDBStructure with hetatoms', function() {
+test('Check getOptimizedPDBStructure with hetatoms', function(assert) {
 	expect(6);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getOptimizedPDBStructure('3N4B', {
 		withAtoms : true
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		ok(result.fromJSON, 'Check that molecule is correctly tagged as coming from JSON');
+		equal(304, result.atoms.length, 'Check the number of atoms');
+		equal(46, result.bonds.length, 'Check the number of bonds');
+		ok(result.chains, 'Check that chains are present');
+		equal(1, result.chains.length, 'Check the number of chains');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	ok(result.fromJSON, 'Check that molecule is correctly tagged as coming from JSON');
-	equal(304, result.atoms.length, 'Check the number of atoms');
-	equal(46, result.bonds.length, 'Check the number of bonds');
-	ok(result.chains, 'Check that chains are present');
-	equal(1, result.chains.length, 'Check the number of chains');
 });
 
-test('Check kekulize', function() {
+test('Check kekulize', function(assert) {
 	expect(5);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4014,18 +4260,19 @@ test('Check kekulize', function() {
 	mol.atoms[2] = new ChemDoodle.structures.Atom();
 	mol.bonds[0] = new ChemDoodle.structures.Bond(mol.atoms[0], mol.atoms[1]);
 	mol.bonds[1] = new ChemDoodle.structures.Bond(mol.atoms[1], mol.atoms[2]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.kekulize(mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		equal(3, result.atoms.length, 'Check the number of atoms');
+		equal(2, result.bonds.length, 'Check the number of bonds');
+		equal(2, result.bonds[0].bondOrder, 'Check first bond order');
+		equal(1, result.bonds[1].bondOrder, 'Check second bond order');
+		done();
 	});
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	equal(3, result.atoms.length, 'Check the number of atoms');
-	equal(2, result.bonds.length, 'Check the number of bonds');
-	equal(2, result.bonds[0].bondOrder, 'Check first bond order');
-	equal(1, result.bonds[1].bondOrder, 'Check second bond order');
 });
 
-test('Check isGraphIsomorphism true', function() {
+test('Check isGraphIsomorphism true', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4039,14 +4286,15 @@ test('Check isGraphIsomorphism true', function() {
 	mol2.atoms[2] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
 	mol2.bonds[1] = new ChemDoodle.structures.Bond(mol2.atoms[1], mol2.atoms[2]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isGraphIsomorphism(mol, mol2, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result, 'Check value is true');
+		done();
 	});
-	ok(result, 'Check value is true');
 });
 
-test('Check isGraphIsomorphism false', function() {
+test('Check isGraphIsomorphism false', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4058,14 +4306,15 @@ test('Check isGraphIsomorphism false', function() {
 	mol2.atoms[0] = new ChemDoodle.structures.Atom();
 	mol2.atoms[1] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isGraphIsomorphism(mol, mol2, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(!result, 'Check value is false');
+		done();
 	});
-	ok(!result, 'Check value is false');
 });
 
-test('Check isSubgraphIsomorphism true', function() {
+test('Check isSubgraphIsomorphism true', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4077,14 +4326,15 @@ test('Check isSubgraphIsomorphism true', function() {
 	mol2.atoms[2] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
 	mol2.bonds[1] = new ChemDoodle.structures.Bond(mol2.atoms[1], mol2.atoms[2]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSubgraphIsomorphism(mol, mol2, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result, 'Check value is true');
+		done();
 	});
-	ok(result, 'Check value is true');
 });
 
-test('Check isSubgraphIsomorphism false', function() {
+test('Check isSubgraphIsomorphism false', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4094,14 +4344,15 @@ test('Check isSubgraphIsomorphism false', function() {
 	mol2.atoms[0] = new ChemDoodle.structures.Atom();
 	mol2.atoms[1] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSubgraphIsomorphism(mol, mol2, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(!result, 'Check value is false');
+		done();
 	});
-	ok(!result, 'Check value is false');
 });
 
-test('Check isSupergraphIsomorphism true', function() {
+test('Check isSupergraphIsomorphism true', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4113,14 +4364,15 @@ test('Check isSupergraphIsomorphism true', function() {
 	mol2.atoms[2] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
 	mol2.bonds[1] = new ChemDoodle.structures.Bond(mol2.atoms[1], mol2.atoms[2]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSupergraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result, 'Check value is true');
+		done();
 	});
-	ok(result, 'Check value is true');
 });
 
-test('Check isSupergraphIsomorphism false', function() {
+test('Check isSupergraphIsomorphism false', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4130,14 +4382,15 @@ test('Check isSupergraphIsomorphism false', function() {
 	mol2.atoms[0] = new ChemDoodle.structures.Atom();
 	mol2.atoms[1] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSupergraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(!result, 'Check value is false');
+		done();
 	});
-	ok(!result, 'Check value is false');
 });
 
-test('Check query isGraphIsomorphism true', function() {
+test('Check query isGraphIsomorphism true', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4148,14 +4401,15 @@ test('Check query isGraphIsomorphism true', function() {
 	mol.bonds[1] = new ChemDoodle.structures.Bond(mol.atoms[1], mol.atoms[2]);
 	mol.bonds[2] = new ChemDoodle.structures.Bond(mol.atoms[2], mol.atoms[3], 2);
 	let mol2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":219,"i":"a0","y":214},{"x":236.3205,"i":"a1","y":204},{"x":253.641,"i":"a2","y":214},{"x":270.9615,"i":"a3","y":204}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"q":{"bs":{"v":["2"]}},"b":2,"e":3,"i":"b2"}]});
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isGraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result, 'Check value is true');
+		done();
 	});
-	ok(result, 'Check value is true');
 });
 
-test('Check query isGraphIsomorphism false', function() {
+test('Check query isGraphIsomorphism false', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4166,64 +4420,69 @@ test('Check query isGraphIsomorphism false', function() {
 	mol.bonds[1] = new ChemDoodle.structures.Bond(mol.atoms[1], mol.atoms[2]);
 	mol.bonds[2] = new ChemDoodle.structures.Bond(mol.atoms[2], mol.atoms[3]);
 	let mol2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":219,"i":"a0","y":214},{"x":236.3205,"i":"a1","y":204},{"x":253.641,"i":"a2","y":214},{"x":270.9615,"i":"a3","y":204}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"q":{"bs":{"v":["2"]}},"b":2,"e":3,"i":"b2"}]});
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isGraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(!result, 'Check value is false');
+		done();
 	});
-	ok(!result, 'Check value is false');
 });
 
-test('Check query isSubgraphIsomorphism true', function() {
+test('Check query isSubgraphIsomorphism true', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":140,"i":"a0","y":218},{"x":157.3205,"i":"a1","y":208},{"x":174.641,"i":"a2","y":218},{"x":191.9615,"i":"a3","y":208},{"x":122.6795,"i":"a4","y":208}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":2,"e":3,"i":"b2","o":2},{"b":0,"e":4,"i":"b3"}]});
 	let mol2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":219,"i":"a0","y":214},{"x":236.3205,"i":"a1","y":204},{"x":253.641,"i":"a2","y":214},{"x":270.9615,"i":"a3","y":204}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"q":{"bs":{"v":["2"]}},"b":2,"e":3,"i":"b2"}]});
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSubgraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result, 'Check value is true');
+		done();
 	});
-	ok(result, 'Check value is true');
 });
 
-test('Check query isSubgraphIsomorphism false', function() {
+test('Check query isSubgraphIsomorphism false', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":140,"i":"a0","y":218},{"x":157.3205,"i":"a1","y":208},{"x":174.641,"i":"a2","y":218},{"x":191.9615,"i":"a3","y":208},{"x":122.6795,"i":"a4","y":208}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":2,"e":3,"i":"b2"},{"b":0,"e":4,"i":"b3"}]});
 	let mol2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":219,"i":"a0","y":214},{"x":236.3205,"i":"a1","y":204},{"x":253.641,"i":"a2","y":214},{"x":270.9615,"i":"a3","y":204}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"q":{"bs":{"v":["2"]}},"b":2,"e":3,"i":"b2"}]});
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSubgraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(!result, 'Check value is false');
+		done();
 	});
-	ok(!result, 'Check value is false');
 });
 
-test('Check query isSupergraphIsomorphism true', function() {
+test('Check query isSupergraphIsomorphism true', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
 	mol.atoms[1] = new ChemDoodle.structures.Atom();
 	mol.bonds[0] = new ChemDoodle.structures.Bond(mol.atoms[0], mol.atoms[1], 2);
 	let mol2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":219,"i":"a0","y":214},{"x":236.3205,"i":"a1","y":204},{"x":253.641,"i":"a2","y":214},{"x":270.9615,"i":"a3","y":204}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"q":{"bs":{"v":["2"]}},"b":2,"e":3,"i":"b2"}]});
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSupergraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result, 'Check value is true');
+		done();
 	});
-	ok(result, 'Check value is true');
 });
 
-test('Check query isSupergraphIsomorphism false', function() {
+test('Check query isSupergraphIsomorphism false', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
 	mol.atoms[1] = new ChemDoodle.structures.Atom();
 	mol.bonds[0] = new ChemDoodle.structures.Bond(mol.atoms[0], mol.atoms[1], 3);
 	let mol2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":219,"i":"a0","y":214},{"x":236.3205,"i":"a1","y":204},{"x":253.641,"i":"a2","y":214},{"x":270.9615,"i":"a3","y":204}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"q":{"bs":{"v":["2"]}},"b":2,"e":3,"i":"b2"}]});
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.isSupergraphIsomorphism(mol2, mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(!result, 'Check value is false');
+		done();
 	});
-	ok(!result, 'Check value is false');
 });
 
-test('Check getSimilarityMeasure', function() {
+test('Check getSimilarityMeasure', function(assert) {
 	expect(1);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
@@ -4233,257 +4492,305 @@ test('Check getSimilarityMeasure', function() {
 	mol2.atoms[0] = new ChemDoodle.structures.Atom();
 	mol2.atoms[1] = new ChemDoodle.structures.Atom();
 	mol2.bonds[0] = new ChemDoodle.structures.Bond(mol2.atoms[0], mol2.atoms[1]);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getSimilarityMeasure(mol, mol2, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(Math.abs(1/2-result)<.001, 'Check value');
+		done();
 	});
-	ok(Math.abs(1/2-result)<.001, 'Check value');
 });
 
-test('Check readIUPACName', function() {
+test('Check readIUPACName', function(assert) {
 	expect(5);
-	let rmols, rwarning;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.readIUPACName('acetonitrile', {}, function(mols, warning) {
-		rmols = mols;
-		rwarning = warning;
+		equal(1, mols.length);
+		ok(warning===undefined);
+		let result = mols[0];
+		ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		equal(3, result.atoms.length, 'Check the number of atoms');
+		equal(2, result.bonds.length, 'Check the number of bonds');
+		done();
 	});
-	equal(1, rmols.length);
-	ok(rwarning===undefined);
-	let result = rmols[0];
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	equal(3, result.atoms.length, 'Check the number of atoms');
-	equal(2, result.bonds.length, 'Check the number of bonds');
 });
 
-test('Check readIUPACName warning', function() {
+test('Check readIUPACName warning', function(assert) {
 	expect(4);
-	let rmols, rwarning;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.readIUPACName('test', {}, function(mols, warning) {
-		rmols = mols;
-		rwarning = warning;
+		equal(0, mols.length);
+		ok(warning!==undefined);
+		ok(warning.length>10);
+		ok(warning.indexOf('test')>0);
+		done();
 	});
-	equal(0, rmols.length);
-	ok(rwarning!==undefined);
-	ok(rwarning.length>10);
-	ok(rwarning.indexOf('test')>0);
 });
 
-test('Check generateImage', function() {
+test('Check generateImage', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.generateImage(mol, {
 		ext : 'png'
 	}, function(returned) {
-		result = returned;
+		let result = returned;
+		let protocol = result.substring(0, 7);
+		ok(protocol=='http://'||protocol=='https:/', 'Check url begins correctly');
+		equal('.png', result.substring(result.length - 4), 'Check url ends correctly');
+		done();
 	});
-	let protocol = result.substring(0, 7);
-	ok(protocol=='http://'||protocol=='https:/', 'Check url begins correctly');
-	equal('.png', result.substring(result.length - 4), 'Check url ends correctly');
 });
 
-test('Check getZeoliteFromIZA', function() {
+test('Check getZeoliteFromIZA', function(assert) {
 	expect(4);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.getZeoliteFromIZA('LTA', {}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result.molecule instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		equal(72, result.molecule.atoms.length, 'Check the number of atoms');
+		equal(72, result.molecule.bonds.length, 'Check the number of bonds');
+		ok(result.unitCell instanceof ChemDoodle.structures.d3.UnitCell, 'Check that unit cell is present');
+		done();
 	});
-	ok(result.molecule instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	equal(72, result.molecule.atoms.length, 'Check the number of atoms');
-	equal(72, result.molecule.bonds.length, 'Check the number of bonds');
-	ok(result.unitCell instanceof ChemDoodle.structures.d3.UnitCell, 'Check that unit cell is present');
 });
 
-test('Check generateIUPACName', function() {
-	expect(1);
-	let mol = new ChemDoodle.structures.Molecule();
-	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
-	ChemDoodle.iChemLabs.generateIUPACName(mol, {}, function(returned) {
-		result = returned;
-	});
-	equal('Methane', result, 'Check the name is Methane');
-});
-
-test('Check createLewisDotStructure', function() {
+test('Check generateIUPACName', function(assert) {
 	expect(2);
 	let mol = new ChemDoodle.structures.Molecule();
 	mol.atoms[0] = new ChemDoodle.structures.Atom();
-	let result;
+	const done = assert.async();
+	ChemDoodle.iChemLabs.generateIUPACName(mol, {}, function(traditional, pin) {
+		equal('Methane', traditional, 'Check the traditional name is Methane');
+		equal('methane', pin, 'Check the PIN is methane');
+		done();
+	});
+});
+
+test('Check createLewisDotStructure', function(assert) {
+	expect(2);
+	let mol = new ChemDoodle.structures.Molecule();
+	mol.atoms[0] = new ChemDoodle.structures.Atom();
+	const done = assert.async();
 	ChemDoodle.iChemLabs.createLewisDotStructure(mol, {}, function(returned) {
-		result = returned;
+		let result = returned;
+		equal(5, result.atoms.length, 'Check 5 atoms');
+		equal(4, result.bonds.length, 'Check 4 bonds');
+		done();
 	});
-	equal(5, result.atoms.length, 'Check 5 atoms');
-	equal(4, result.bonds.length, 'Check 4 bonds');
 });
 
-test('Check matchMechanism match', function() {
+test('Check matchMechanism match', function(assert) {
 	expect(2);
-	let result;
 	let arrow = {"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a2","o2":"a4","e":2}]};
 	let targets = [{"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a2","o2":"a4","e":2}]}];
+	const done = assert.async();
 	ChemDoodle.iChemLabs.mechanismMatch(arrow, targets, {}, function(returned) {
-		result = returned.value;
+		let result = returned.value;
+		equal(1, result.length, 'Check 1 result');
+		equal(1, result[0], 'Check result is a match');
+		done();
 	});
-	equal(1, result.length, 'Check 1 result');
-	equal(1, result[0], 'Check result is a match');
 });
 
-test('Check matchMechanism match stereo', function() {
+test('Check matchMechanism match stereo', function(assert) {
 	expect(4);
-	let result;
 	let arrow = {"m":[{"a":[{"x":237.5,"y":180.84375,"i":"a0"},{"x":237.5,"y":160.84375,"i":"a1"},{"x":220.1794919243112,"y":190.84375,"i":"a2","l":"O"},{"x":254.82050807568876,"y":190.84375,"i":"a3","l":"N"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":0,"e":2,"i":"b1"},{"b":0,"e":3,"i":"b2","s":"protruding"}]},{"a":[{"x":184.5,"y":140.84375,"i":"a4","l":"Cl"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a4","o2":"a0","e":2}]};
 	let targets = [{"m":[{"a":[{"x":237.5,"y":180.84375,"i":"a0"},{"x":237.5,"y":160.84375,"i":"a1"},{"x":220.1794919243112,"y":190.84375,"i":"a2","l":"O"},{"x":254.82050807568876,"y":190.84375,"i":"a3","l":"N"}],"b":[{"b":0,"e":1,"i":"b0","s":"protruding"},{"b":0,"e":2,"i":"b1"},{"b":0,"e":3,"i":"b2"}]},{"a":[{"x":184.5,"y":140.84375,"i":"a4","l":"Cl"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a4","o2":"a0","e":2}]}];
+	const done1 = assert.async();
+	const done2 = assert.async();
 	ChemDoodle.iChemLabs.mechanismMatch(arrow, targets, {}, function(returned) {
-		result = returned.value;
+		let result = returned.value;
+		equal(1, result.length, 'Check 1 result');
+		equal(0, result[0], 'Check result is a match');
+		done1();
 	});
-	equal(1, result.length, 'Check 1 result');
-	equal(0, result[0], 'Check result is a match');
 	ChemDoodle.iChemLabs.mechanismMatch(arrow, targets, {enforceStereo:true}, function(returned) {
-		result = returned.value;
+		let result = returned.value;
+		equal(1, result.length, 'Check 1 result');
+		equal(1, result[0], 'Check result is a match');
+		done2();
 	});
-	equal(1, result.length, 'Check 1 result');
-	equal(1, result[0], 'Check result is a match');
 });
 
-test('Check matchMechanism partial match', function() {
+test('Check matchMechanism partial match', function(assert) {
 	expect(2);
-	let result;
 	let arrow = {"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[]};
 	let targets = [{"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a2","o2":"a4","e":2}]}];
+	const done = assert.async();
 	ChemDoodle.iChemLabs.mechanismMatch(arrow, targets, {}, function(returned) {
-		result = returned.value;
+		let result = returned.value;
+		equal(1, result.length, 'Check 1 result');
+		equal(2, result[0], 'Check result is a partial match');
+		done();
 	});
-	equal(1, result.length, 'Check 1 result');
-	equal(2, result[0], 'Check result is a partial match');
 });
 
-test('Check matchMechanism not match', function() {
+test('Check matchMechanism not match', function(assert) {
 	expect(2);
-	let result;
 	let arrow = {"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a2","o2":"a4","e":2}]};
 	let targets = [{"m":[{"a":[{"x":125.5,"y":122,"i":"a0"},{"x":142.82050807568876,"y":112,"i":"a1"},{"x":160.14101615137753,"y":122,"i":"a2"},{"x":177.4615242270663,"y":112,"i":"a3"},{"x":194.78203230275506,"y":122,"i":"a4","l":"O"},{"x":177.4615242270663,"y":92,"i":"a5","l":"O"},{"x":212.10254037844382,"y":112,"i":"a6"},{"x":229.42304845413258,"y":122,"i":"a7"},{"x":142.82050807568876,"y":92,"i":"a8","l":"O","c":-1}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1","o":2},{"b":2,"e":3,"i":"b2"},{"b":3,"e":4,"i":"b3"},{"b":3,"e":5,"i":"b4","o":2},{"b":4,"e":6,"i":"b5"},{"b":6,"e":7,"i":"b6"},{"b":1,"e":8,"i":"b7"}]},{"a":[{"x":159.5,"y":148,"i":"a9"},{"x":179.5,"y":148,"i":"a10"},{"x":169.5,"y":165.32050807568876,"i":"a11","l":"O"}],"b":[{"b":0,"e":1,"i":"b8"},{"b":0,"e":2,"i":"b9"},{"b":2,"e":1,"i":"b10"}]},{"a":[{"x":143.5,"y":59,"i":"a12","l":"Na","c":1}]}],"s":[{"i":"s0","t":"Pusher","o1":"a8","o2":"b7","e":2},{"i":"s1","t":"Pusher","o1":"b1","o2":"a9","e":2},{"i":"s2","t":"Pusher","o1":"b9","o2":"a11","e":2}]}];
+	const done = assert.async();
 	ChemDoodle.iChemLabs.mechanismMatch(arrow, targets, {}, function(returned) {
-		result = returned.value;
+		let result = returned.value;
+		equal(1, result.length, 'Check 1 result');
+		equal(0, result[0], 'Check result is not a match');
+		done();
 	});
-	equal(1, result.length, 'Check 1 result');
-	equal(0, result[0], 'Check result is not a match');
 });
 
-test('Check matchMechanism multiple', function() {
+test('Check matchMechanism multiple', function(assert) {
 	expect(3);
-	let result;
 	let arrow = {"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a2","o2":"a4","e":2}]};
 	let targets = [{"m":[{"a":[{"x":92,"y":154,"i":"a0"},{"x":109.32050807568878,"y":144,"i":"a1"},{"x":126.64101615137754,"y":154,"i":"a2","l":"O","c":-1},{"x":109.32050807568878,"y":124,"i":"a3","l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1"},{"b":1,"e":3,"i":"b2","o":2}]},{"a":[{"x":176,"y":154,"i":"a4","l":"H"},{"x":196,"y":154,"i":"a5","l":"O"},{"x":216,"y":154,"i":"a6","l":"S"},{"x":216,"y":134,"i":"a7","l":"O"},{"x":216,"y":174,"i":"a8","l":"O"},{"x":236,"y":154,"i":"a9","l":"O"}],"b":[{"b":0,"e":1,"i":"b3"},{"b":1,"e":2,"i":"b4"},{"b":2,"e":3,"i":"b5","o":2},{"b":2,"e":4,"i":"b6","o":2},{"b":2,"e":5,"i":"b7"}]}],"s":[{"i":"s0","t":"Pusher","o1":"a2","o2":"a4","e":2}]}, {"m":[{"a":[{"x":125.5,"y":122,"i":"a0"},{"x":142.82050807568876,"y":112,"i":"a1"},{"x":160.14101615137753,"y":122,"i":"a2"},{"x":177.4615242270663,"y":112,"i":"a3"},{"x":194.78203230275506,"y":122,"i":"a4","l":"O"},{"x":177.4615242270663,"y":92,"i":"a5","l":"O"},{"x":212.10254037844382,"y":112,"i":"a6"},{"x":229.42304845413258,"y":122,"i":"a7"},{"x":142.82050807568876,"y":92,"i":"a8","l":"O","c":-1}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":2,"i":"b1","o":2},{"b":2,"e":3,"i":"b2"},{"b":3,"e":4,"i":"b3"},{"b":3,"e":5,"i":"b4","o":2},{"b":4,"e":6,"i":"b5"},{"b":6,"e":7,"i":"b6"},{"b":1,"e":8,"i":"b7"}]},{"a":[{"x":159.5,"y":148,"i":"a9"},{"x":179.5,"y":148,"i":"a10"},{"x":169.5,"y":165.32050807568876,"i":"a11","l":"O"}],"b":[{"b":0,"e":1,"i":"b8"},{"b":0,"e":2,"i":"b9"},{"b":2,"e":1,"i":"b10"}]},{"a":[{"x":143.5,"y":59,"i":"a12","l":"Na","c":1}]}],"s":[{"i":"s0","t":"Pusher","o1":"a8","o2":"b7","e":2},{"i":"s1","t":"Pusher","o1":"b1","o2":"a9","e":2},{"i":"s2","t":"Pusher","o1":"b9","o2":"a11","e":2}]}];
+	const done = assert.async();
 	ChemDoodle.iChemLabs.mechanismMatch(arrow, targets, {}, function(returned) {
-		result = returned.value;
+		let result = returned.value;
+		equal(2, result.length, 'Check 2 results');
+		equal(1, result[0], 'Check first result is a match');
+		equal(0, result[1], 'Check second result is not a match');
+		done();
 	});
-	equal(2, result.length, 'Check 2 results');
-	equal(1, result[0], 'Check first result is a match');
-	equal(0, result[1], 'Check second result is not a match');
 });
 
-test('Check version', function() {
+test('Check version', function(assert) {
 	expect(3);
-	let result;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.version({}, function(returned) {
-		result = returned;
+		let result = returned;
+		ok(result.length>0, 'Check result is not empty');
+		equal(-1, result.indexOf('__CHEMDOODLE_CLOUD_VERSION__'), 'Check cloud version placeholder is set');
+		equal(-1, result.indexOf('__CHEMDOODLE_JAR_REVISION__'), 'Check chemdoodle jar version placeholder is set');
+		done();
 	});
-	ok(result.length>0, 'Check result is not empty');
-	equal(-1, result.indexOf('__CHEMDOODLE_CLOUD_VERSION__'), 'Check cloud version placeholder is set');
-	equal(-1, result.indexOf('__CHEMDOODLE_JAR_REVISION__'), 'Check chemdoodle jar version placeholder is set');
 });
 
-test('Check resolveCIP', function() {
+test('Check resolveCIP', function(assert) {
 	expect(26);
 	let mol = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":247.2768,"i":"a0","y":405.5226},{"x":229.9563,"i":"a1","y":395.5226,"l":"N"},{"x":264.5973,"i":"a2","y":395.5226},{"x":247.2768,"i":"a3","y":425.5226},{"x":212.6357,"i":"a4","y":405.5226},{"x":281.9178,"i":"a5","y":405.5226},{"x":254.5973,"i":"a6","y":378.2021,"l":"H"},{"x":274.5973,"i":"a7","y":378.2021,"l":"O"},{"x":229.9562,"i":"a8","y":435.5226},{"x":212.6357,"i":"a9","y":425.5226},{"x":299.2383,"i":"a10","y":395.5226,"l":"N"},{"x":316.5588,"i":"a11","y":405.5226}],"b":[{"b":0,"e":2,"i":"b0"},{"b":0,"e":1,"i":"b1","o":2},{"b":1,"e":4,"i":"b2"},{"b":4,"e":9,"i":"b3","o":2},{"b":9,"e":8,"i":"b4"},{"b":8,"e":3,"i":"b5","o":2},{"b":3,"e":0,"i":"b6"},{"b":2,"e":5,"i":"b7"},{"b":5,"e":10,"i":"b8","o":2},{"b":10,"e":11,"i":"b9"},{"b":2,"s":"protruding","e":7,"i":"b10","o":1},{"b":2,"s":"recessed","e":6,"i":"b11","o":1}]});
-	let atomConfigs, bondConfigs;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.resolveCIP(mol, {}, function(ac, bc) {
-		atomConfigs = ac;
-		bondConfigs = bc;
+		equal(12, ac.length);
+		for(let i = 0; i<ac.length; i++){
+			equal(i==2?'R':'', ac[i]);
+		}
+		equal(12, bc.length);
+		for(let i = 0; i<bc.length; i++){
+			equal(i==8?'E':'', bc[i]);
+		}
+		done();
 	});
-	equal(12, atomConfigs.length);
-	for(let i = 0; i<atomConfigs.length; i++){
-		equal(i==2?'R':'', atomConfigs[i]);
-	}
-	equal(12, bondConfigs.length);
-	for(let i = 0; i<bondConfigs.length; i++){
-		equal(i==8?'E':'', bondConfigs[i]);
-	}
 });
 
-test('Check balanceReaction reaction', function() {
+test('Check balanceReaction reaction', function(assert) {
 	expect(2);
 	let content = new ChemDoodle.io.JSONInterpreter().contentFrom({"s":[{"a":"synthetic","t":"Line","y1":366.064,"x1":275,"y2":366.064,"i":"s0","x2":317}],"m":[{"a":[{"x":99.3879,"i":"a0","y":366.8397},{"x":89.3879,"i":"a1","y":349.5193},{"x":89.3879,"i":"a2","y":384.1603},{"x":119.3879,"i":"a3","y":366.8397},{"x":69.3879,"i":"a4","y":349.5193},{"x":69.3879,"i":"a5","y":384.1603},{"x":139.3879,"i":"a6","y":366.8397,"l":"Mg"},{"x":59.3879,"i":"a7","y":366.8397},{"x":159.3879,"i":"a8","y":366.8397,"l":"Br"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":1,"e":4,"i":"b1","o":2},{"b":4,"e":7,"i":"b2"},{"b":7,"e":5,"i":"b3","o":2},{"b":5,"e":2,"i":"b4"},{"b":2,"e":0,"i":"b5","o":2},{"b":0,"e":3,"i":"b6"},{"b":3,"e":6,"i":"b7"},{"b":6,"e":8,"i":"b8"}]},{"a":[{"x":216.0898,"i":"a9","y":373.5129},{"x":233.4102,"i":"a10","y":363.5129,"l":"O"}],"b":[{"b":0,"e":1,"i":"b9"}]},{"a":[{"x":392.2501,"i":"a11","y":366.0639},{"x":412.2501,"i":"a12","y":366.0639},{"x":382.2501,"i":"a13","y":383.3845},{"x":382.2501,"i":"a14","y":348.7434},{"x":362.2501,"i":"a15","y":383.3845},{"x":362.2501,"i":"a16","y":348.7434},{"x":352.2501,"i":"a17","y":366.0639}],"b":[{"b":0,"e":3,"i":"b10"},{"b":3,"e":5,"i":"b11","o":2},{"b":5,"e":6,"i":"b12"},{"b":6,"e":4,"i":"b13","o":2},{"b":4,"e":2,"i":"b14"},{"b":2,"e":0,"i":"b15","o":2},{"b":0,"e":1,"i":"b16"}]},{"a":[{"x":488.652,"i":"a18","y":370.9452,"l":"Mg"},{"x":508.652,"i":"a19","y":370.9452,"l":"O"},{"x":468.652,"i":"a20","y":370.9452,"l":"Br"},{"x":518.6519,"i":"a21","y":353.6248}],"b":[{"b":0,"e":2,"i":"b17"},{"b":0,"e":1,"i":"b18"},{"b":1,"e":3,"i":"b19"}]}]});
-	let r = undefined;
-	let m = undefined;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.balanceReaction({'molecules':content.molecules,'shapes':content.shapes}, {}, function(result, message) {
-		r = result;
-		m = message;
+		equal('1C<sub>7</sub>H<sub>7</sub>BrMg + 1CH<sub>4</sub>O = 1C<sub>7</sub>H<sub>8</sub> + 1CH<sub>3</sub>BrMgO', result);
+		ok(!message);
+		done();
 	});
-	equal('1C<sub>7</sub>H<sub>7</sub>BrMg + 1CH<sub>4</sub>O = 1C<sub>7</sub>H<sub>8</sub> + 1CH<sub>3</sub>BrMgO', r);
-	ok(!m);
 });
 
-test('Check balanceReaction equation', function() {
+test('Check balanceReaction equation', function(assert) {
 	expect(2);
-	let r = undefined;
-	let m = undefined;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.balanceReaction('Al + HCl = AlCl3 + H2', {}, function(result, message) {
-		r = result;
-		m = message;
+		equal('2Al + 6HCl = 2AlCl<sub>3</sub> + 3H<sub>2</sub>', result);
+		ok(!message);
+		done();
 	});
-	equal('2Al + 6HCl = 2AlCl<sub>3</sub> + 3H<sub>2</sub>', r);
-	ok(!m);
 });
 
-test('Check maximumCommonSubstructure connected', function() {
+test('Check maximumCommonSubstructure connected', function(assert) {
 	expect(1);
-	let result;
 	let m1 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":769.5104,"i":"a0","y":508.6458,"l":"O"},{"x":769.5104,"i":"a1","y":478.6458},{"x":795.4905,"i":"a2","y":463.6458},{"x":743.5305,"i":"a3","y":463.6458},{"x":795.4905,"i":"a4","y":433.6458},{"x":743.5305,"i":"a5","y":433.6458},{"x":769.5104,"i":"a6","y":418.6458},{"x":769.5104,"i":"a7","y":388.6458,"l":"N"},{"x":795.4905,"i":"a8","y":373.6458},{"x":795.4905,"i":"a9","y":343.6458},{"x":821.4734,"i":"a10","y":388.6458,"l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":2,"e":1,"i":"b1","o":2},{"b":3,"e":1,"i":"b2"},{"b":4,"e":2,"i":"b3"},{"b":5,"e":3,"i":"b4","o":2},{"b":6,"e":4,"i":"b5","o":2},{"b":6,"e":5,"i":"b6"},{"b":7,"e":6,"i":"b7"},{"b":7,"e":8,"i":"b8"},{"b":8,"e":9,"i":"b9"},{"b":10,"e":8,"i":"b10","o":2}]});
 	let m2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":734.0388,"i":"a0","y":226.1461,"l":"O"},{"x":760.0218,"i":"a1","y":241.1461},{"x":708.0588,"i":"a2","y":241.1461},{"x":786.0018,"i":"a3","y":226.1461},{"x":760.0218,"i":"a4","y":271.1461},{"x":708.0588,"i":"a5","y":271.1461,"l":"O"},{"x":682.0788,"i":"a6","y":226.1461},{"x":811.9818,"i":"a7","y":241.1461},{"x":786.0018,"i":"a8","y":196.1461},{"x":786.0018,"i":"a9","y":286.1461},{"x":811.9818,"i":"a10","y":271.1461},{"x":760.0218,"i":"a11","y":181.1461,"l":"O"},{"x":811.9818,"i":"a12","y":181.1461,"l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":0,"e":2,"i":"b1"},{"b":1,"e":4,"i":"b2","o":2},{"b":1,"e":3,"i":"b3"},{"b":5,"e":2,"i":"b4","o":2},{"b":2,"e":6,"i":"b5"},{"b":4,"e":9,"i":"b6"},{"b":3,"e":7,"i":"b7","o":2},{"b":3,"e":8,"i":"b8"},{"b":9,"e":10,"i":"b9","o":2},{"b":7,"e":10,"i":"b10"},{"b":11,"e":8,"i":"b11","o":2},{"b":12,"e":8,"i":"b12"}]});
+	const done = assert.async();
 	ChemDoodle.iChemLabs.maximumCommonSubstructure(m1, m2, {disconnected:false}, function(map) {
-		result = map;
+		let result = map;
+		equal(7, Object.getOwnPropertyNames(result).length, 'Check 7 mappings');
+		done();
 	});
-	equal(7, Object.getOwnPropertyNames(result).length, 'Check 7 mappings');
 });
 
-test('Check maximumCommonSubstructure disconnected', function() {
+test('Check maximumCommonSubstructure disconnected', function(assert) {
 	expect(1);
-	let result;
 	let m1 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":769.5104,"i":"a0","y":508.6458,"l":"O"},{"x":769.5104,"i":"a1","y":478.6458},{"x":795.4905,"i":"a2","y":463.6458},{"x":743.5305,"i":"a3","y":463.6458},{"x":795.4905,"i":"a4","y":433.6458},{"x":743.5305,"i":"a5","y":433.6458},{"x":769.5104,"i":"a6","y":418.6458},{"x":769.5104,"i":"a7","y":388.6458,"l":"N"},{"x":795.4905,"i":"a8","y":373.6458},{"x":795.4905,"i":"a9","y":343.6458},{"x":821.4734,"i":"a10","y":388.6458,"l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":2,"e":1,"i":"b1","o":2},{"b":3,"e":1,"i":"b2"},{"b":4,"e":2,"i":"b3"},{"b":5,"e":3,"i":"b4","o":2},{"b":6,"e":4,"i":"b5","o":2},{"b":6,"e":5,"i":"b6"},{"b":7,"e":6,"i":"b7"},{"b":7,"e":8,"i":"b8"},{"b":8,"e":9,"i":"b9"},{"b":10,"e":8,"i":"b10","o":2}]});
 	let m2 = new ChemDoodle.io.JSONInterpreter().molFrom({"a":[{"x":734.0388,"i":"a0","y":226.1461,"l":"O"},{"x":760.0218,"i":"a1","y":241.1461},{"x":708.0588,"i":"a2","y":241.1461},{"x":786.0018,"i":"a3","y":226.1461},{"x":760.0218,"i":"a4","y":271.1461},{"x":708.0588,"i":"a5","y":271.1461,"l":"O"},{"x":682.0788,"i":"a6","y":226.1461},{"x":811.9818,"i":"a7","y":241.1461},{"x":786.0018,"i":"a8","y":196.1461},{"x":786.0018,"i":"a9","y":286.1461},{"x":811.9818,"i":"a10","y":271.1461},{"x":760.0218,"i":"a11","y":181.1461,"l":"O"},{"x":811.9818,"i":"a12","y":181.1461,"l":"O"}],"b":[{"b":0,"e":1,"i":"b0"},{"b":0,"e":2,"i":"b1"},{"b":1,"e":4,"i":"b2","o":2},{"b":1,"e":3,"i":"b3"},{"b":5,"e":2,"i":"b4","o":2},{"b":2,"e":6,"i":"b5"},{"b":4,"e":9,"i":"b6"},{"b":3,"e":7,"i":"b7","o":2},{"b":3,"e":8,"i":"b8"},{"b":9,"e":10,"i":"b9","o":2},{"b":7,"e":10,"i":"b10"},{"b":11,"e":8,"i":"b11","o":2},{"b":12,"e":8,"i":"b12"}]});
+	const done = assert.async();
 	ChemDoodle.iChemLabs.maximumCommonSubstructure(m1, m2, {disconnected:true}, function(map) {
-		result = map;
+		let result = map;
+		equal(9, Object.getOwnPropertyNames(result).length, 'Check 9 mappings');
+		done();
 	});
-	equal(9, Object.getOwnPropertyNames(result).length, 'Check 9 mappings');
 });
 
-test('Check readWLN', function() {
+test('Check readWLN', function(assert) {
 	expect(5);
-	let rcontent;
+	const done = assert.async();
 	ChemDoodle.iChemLabs.readWLN('QY2&2', {}, function(content) {
-		rcontent = content;
+		let rcontent = content;
+		equal(1, rcontent.molecules.length);
+		equal(0, rcontent.shapes.length);
+		let result = rcontent.molecules[0];
+		ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
+		equal(6, result.atoms.length, 'Check the number of atoms');
+		equal(5, result.bonds.length, 'Check the number of bonds');
+		done();
 	});
-	equal(1, rcontent.molecules.length);
-	equal(0, rcontent.shapes.length);
-	let result = rcontent.molecules[0];
-	ok(result instanceof ChemDoodle.structures.Molecule, 'Check that the returned object is the correct class');
-	equal(6, result.atoms.length, 'Check the number of atoms');
-	equal(5, result.bonds.length, 'Check the number of bonds');
 });
 
-test('Check fileToImage', function() {
+test('Check fileToImage', function(assert) {
 	// not possible to check file upload, so just check the function is defined
 	expect(1);
 	ok(ChemDoodle.iChemLabs.fileToImage, 'Function exists.');
 });
 
-test('Check cir', function() {
+test('Check cir', function(assert) {
 	// not possible to check file upload, so just check the function is defined
 	expect(1);
 	ok(ChemDoodle.iChemLabs.cir, 'Function exists.');
+});
+
+test('Check elementalAnalaysis', function(assert) {
+	expect(8);
+	let mol = new ChemDoodle.structures.Molecule();
+	mol.atoms[0] = new ChemDoodle.structures.Atom();
+	const done = assert.async();
+	ChemDoodle.iChemLabs.elementalAnalysis(mol, {}, function(content) {
+		let result = content;
+		ok(result, 'Check result is not undefined');
+		ok(!result.error, 'Check there is no error');
+		equal('CH<sub>4</sub>', result.molecular_formula, 'Check the molecular formula');
+		equal('16.04 amu', result.molecular_mass, 'Check the molecular mass');
+		equal('16.03 amu', result.monoisotopic_mass, 'Check the monoisotopic mass');
+		equal('C-74.87; H-25.13', result.composition, 'Check the composition');
+		equal('16.03 (100.000%), 17.03 (1.082%), 17.04 (0.046%)', result.peaks, 'Check the peaks');
+		ok(result.jcamp.length>10, 'Check jcamp exists with content');
+		done();
+	});
+});
+
+test('Check elementalAnalaysis unknown isotope', function(assert) {
+	expect(8);
+	let mol = new ChemDoodle.structures.Molecule();
+	mol.atoms[0] = new ChemDoodle.structures.Atom();
+	mol.atoms[0].mass = 99;
+	const done = assert.async();
+	ChemDoodle.iChemLabs.elementalAnalysis(mol, {}, function(content) {
+		let result = content;
+		ok(result, 'Check result is not undefined');
+		equal('No data for isotope(s): 99C', result.error, 'Verify error has the correct message');
+		equal('<sup>99</sup>CH<sub>4</sub>', result.molecular_formula, 'Check the molecular formula');
+		equal(undefined, result.molecular_mass, 'Check the molecular mass');
+		equal(undefined, result.monoisotopic_mass, 'Check the monoisotopic mass');
+		equal(undefined, result.composition, 'Check the composition');
+		equal(undefined, result.peaks, 'Check the peaks');
+		equal(undefined, result.jcamp, 'Check the jcamp spectrum is undefined');
+		done();
+	});
 });
 module('Molecule');
 

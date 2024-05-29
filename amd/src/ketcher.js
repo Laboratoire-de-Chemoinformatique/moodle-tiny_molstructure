@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-import Selectors from "tiny_molstructure/selectors";
 import notification from "core/notification";
 import Ajax from 'core/ajax';
 import {getDraftItemId} from 'editor_tiny/options';
@@ -27,10 +26,11 @@ import {getContextId} from "./options";
  * Visual Mathquill editor input instanciation
  */
 
-export const insertImage = async(iframeBody, editor) => {
+
+export const insertImage = async(iframeBody, editor, ketcherviewId) => {
   let divContent = '';
   // Getting the viewer canvas.
-  let ketcherViewer = iframeBody.contentDocument.querySelector(Selectors.elements.canvas.ketcherviewId);
+  let ketcherViewer = iframeBody.contentDocument.querySelector('#'+ketcherviewId);
   const imgDataURL = ketcherViewer.toDataURL('image/svg');
   const itemId = getDraftItemId(editor);
   const fileReturn = await createAnUploadImageFile(itemId, imgDataURL, getContextId(editor));

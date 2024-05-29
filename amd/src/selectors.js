@@ -29,10 +29,11 @@ export default {
     },
     elements: {
         form: 'form',
-        canvas: {
-            selector2D: '.molstructure_2D_iframe',
-            selector3D: '.molstructure_3D_iframe',
-            ketcherviewId: '#sketcher-viewer-tiny',
+        tabsSelectors: 'ul[id^=molstructure-navbar] a[data-toggle="tab"]',
+        canvas2D: {
+            tabSelector: 'ul[id^=molstructure-navbar] a[data-toggle="tab"][id^=molstructure-tab-2D]',
+            selector: '.molstructure_2D_iframe',
+            ketcherviewId: 'sketcher-viewer-tiny',
             heightInputLabel: '#label_height_input_molstructure',
             widthInputLabel: '#label_width_input_molstructure',
             heightInput: '#height_input_molstructure',
@@ -40,5 +41,15 @@ export default {
             resizeButton: '#button-size-button'
 
         },
+        canvas3D: {
+            tabSelector: 'ul[id^=molstructure-navbar] a[data-toggle="tab"][id^=molstructure-tab-3D]',
+            selector: '.molstructure_3D_iframe',
+            ketcherviewId: 'sketcher-viewer-tiny-3D',
+            heightInputLabel: '#label_height_input_molstructure-3D',
+            widthInputLabel: '#label_width_input_molstructure-3D',
+            heightInput: '#height_input_molstructure-3D',
+            widthInput: '#width_input_molstructure-3D',
+            resizeButton: '#button-size-button-3D'
+        }
     }
 };

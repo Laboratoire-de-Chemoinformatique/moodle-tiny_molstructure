@@ -1,0 +1,232 @@
+--- /datas/dev/moodle/moodle_gitworkspaces/chemoinformatique/moodle_plugins/lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-unpacked.js	2024-03-19 03:43:03.000000000 +0100
++++ /datas/dev/moodle/moodle_gitworkspaces/chemoinformatique/moodle_plugins/lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/ChemDoodleWeb.js	2024-05-29 10:18:55.225948691 +0200
+@@ -15216,7 +15216,9 @@
+ 		
+ 		return molecule;
+ 	};
+-	_.write = function(molecule) {
++  // Unistra dev.
++  _.write = function(molecule, shapes) {
++  // End Unistra dev.
+ 		let sb = [];
+ 		sb.push('Molecule from ChemDoodle Web Components\n\nhttp://www.ichemlabs.com\n');
+ 		sb.push(this.fit(molecule.atoms.length.toString(), 3));
+@@ -15257,6 +15259,21 @@
+ 						break;
+ 					}
+ 				}
++
++        // Unistra dev.
++        let k = 0;
++        let atommapp = 0;
++        if (typeof shapes !== 'undefined') {
++          for (let j = 0, jj = shapes.length; j < jj; j++) {
++            if (shapes[j] instanceof structures.d2.AtomMapping) {
++              k++;
++              if (a === shapes[j].o1 || a === shapes[j].o2) {
++                atommapp = k;
++              }
++            }
++          }
++        }
++        // End Unistra dev.
+ 				sb.push(this.fit(((a.x - p.x) / c.DEFAULT_STYLES.bondLength_2D).toFixed(4), 10));
+ 				sb.push(this.fit((-(a.y - p.y) / c.DEFAULT_STYLES.bondLength_2D).toFixed(4), 10));
+ 				sb.push(this.fit((a.z / c.DEFAULT_STYLES.bondLength_2D).toFixed(4), 10));
+@@ -15265,6 +15282,11 @@
+ 				sb.push(mass);
+ 				sb.push(charge);
+ 				sb.push('  0  0  0  0\n');
++        // Unistra dev.
++        sb.push('  0  0  0  0  0  0  0');
++        sb.push(this.fit((atommapp).toString(), 3));
++        sb.push('  0  0\n');
++        // End Unistra dev.
+ 			}
+ 			for ( let i = 0, ii = molecule.bonds.length; i < ii; i++) {
+ 				let b = molecule.bonds[i];
+@@ -15432,8 +15454,10 @@
+ 	c.readMOL = function(content, multiplier) {
+ 		return interpreter2.read(content, multiplier);
+ 	};
+-	c.writeMOL = function(mol) {
+-		return interpreter2.write(mol);
++  // Unistra dev.
++  c.writeMOL = function(mol, shapes) {
++    return interpreter2.write(mol, shapes);
++  // End Unistra dev.
+ 	};
+ 	let interpreter3 = new io.MOLInterpreter();
+ 	interpreter3.version = 3;
+@@ -16863,12 +16887,16 @@
+ 		sb.push('\n');
+ 		for ( let j = 0, jj = reaction.reactants.length; j < jj; j++) {
+ 			sb.push('$MOL\n');
+-			sb.push(c.writeMOL(reaction.reactants[j]));
++      // Unistra dev.
++      sb.push(c.writeMOL(reaction.reactants[j], shapes));
++      // End Unistra dev.
+ 			sb.push('\n');
+ 		}
+ 		for ( let j = 0, jj = reaction.products.length; j < jj; j++) {
+ 			sb.push('$MOL\n');
+-			sb.push(c.writeMOL(reaction.products[j]));
++      // Unistra dev.
++      sb.push(c.writeMOL(reaction.products[j], shapes));
++      // End Unistra dev.
+ 			sb.push('\n');
+ 		}
+ 		return sb.join('');
+@@ -17066,15 +17094,13 @@
+ 		}
+ 	};
+ 	_.resize = function(w, h) {
+-		let cap = q('#' + this.id);
+-		cap.attr({
+-			width : w,
+-			height : h
+-		});
+-		cap.css('width', w);
+-		cap.css('height', h);
+-		this.width = w;
+-		this.height = h;
++    // UNISTRA dev bug correction.
++    let cap = window.document.querySelector('#'+this.id);
++    cap.setAttribute('width', w);
++    cap.setAttribute('height', h);
++    cap.style.width =  w;
++    cap.style.height =  h;
++    // End UNISTRA dev bug correction
+ 		if (c._Canvas3D && this instanceof c._Canvas3D) {
+ 			let wu = w;
+ 			let hu = h;
+@@ -18045,7 +18071,9 @@
+ 
+ })(ChemDoodle, ChemDoodle.monitor, ChemDoodle.structures, Math, ChemDoodle.lib.mat4);
+ 
+-(function(c, undefined) {
++// UNistra dev.
++(function(c, structures, undefined) {
++// End Unistra dev.
+ 	'use strict';
+ 	c.ViewerCanvas = function(id, width, height) {
+ 		if (id) {
+@@ -18053,8 +18081,117 @@
+ 		}
+ 	};
+ 	c.ViewerCanvas.prototype = new c._Canvas();
++  // Unistra dev
++    let _ = c.ViewerCanvas.prototype = new c._Canvas();
++    _.checksOnAction = function(force){
++    // using force improves efficiency, so changes will not be checked
++      // until a render occurs
++        // you can force a check by sending true to this function after
++          // calling check with a false
++            if (force && this.doChecks) {
++      // setup data for atom mappings
++        let arrow;
++      let mappings = [];
++      let brackets = [];
++      let vaps = [];
++      for(let i = 0, ii = this.shapes.length; i<ii; i++){
++        let s = this.shapes[i];
++        if(s instanceof structures.d2.AtomMapping){
++          s.error = false;
++          mappings.push(s);
++          }else if(s instanceof structures.d2.Line && !arrow){
++          // make sure arrow isn't defined, just to make sure we use the first arrow
++            arrow = s;
++          }else if(s instanceof structures.d2.RepeatUnit){
++          s.error = false;
++          brackets.push(s);
++          }else if(s instanceof structures.d2.VAP){
++          s.error = false;
++          vaps.push(s);
++          }
++        }
++      for(let i = 0, ii = mappings.length; i<ii; i++){
++        let si = mappings[i];
++        si.label = (i+1).toString();
++        for(let j = i+1, jj = mappings.length; j<jj; j++){
++          let sj = mappings[j];
++          if(si.o1===sj.o1 || si.o2===sj.o1 || si.o1===sj.o2 || si.o2===sj.o2){
++            si.error = true;
++            sj.error = true;
++            }
++          }
++        // different labels
++          if(!si.error && si.o1.label !== si.o2.label){
++          si.error = true;
++          }
++        // same structure
++          if(!si.error && this.getMoleculeByAtom(si.o1) === this.getMoleculeByAtom(si.o2)){
++            si.error = true;
++          }
++        }
++      if(brackets.length!==0){
++        let allAs = this.getAllAtoms();
++        for(let i = 0, ii = allAs.length; i<ii; i++){
++          allAs[i].inBracket = false;
++          }
++        for(let i = 0, ii = brackets.length; i<ii; i++){
++          let si = brackets[i];
++          si.setContents(this);
++          if(si.contents.length===0){
++            // user error
++              si.error = true;
++            }else{
++            for(let j = 0, jj = si.contents.length; j<jj; j++){
++              if(si.contents[j].inBracket){
++                si.error = true;
++                break;
++                }
++              }
++            }
++          for(let j = 0, jj = si.contents.length; j<jj; j++){
++            si.contents[j].inBracket = true;
++            }
++          }
++        }
++      for(let i = 0, ii = vaps.length; i<ii; i++){
++        let vap = vaps[i];
++        if(!vap.substituent){
++          // no substituent
++            vap.error = true;
++          }else if(vap.attachments.length===0){
++            // no attachments
++            vap.error = true;
++          }
++        if(!vap.error){
++          // check that all attachments are part of the same molecule
++          let m = this.getMoleculeByAtom(vap.attachments[0]);
++          vap.substituent.present = undefined;
++          for(let j = 0, jj = m.atoms.length; j<jj; j++){
++            m.atoms[j].present = true;
++          }
++          // also make sure the substituent is NOT part of the same molecule
++            if(vap.substituent.present){
++            vap.error = true;
++            }
++          if(!vap.error){
++            for(let j = 0, jj = vap.attachments.length; j<jj; j++){
++                if(!vap.attachments[j].present){
++                  vap.error = true;
++                break;
++                }
++              }
++            }
++          for(let j = 0, jj = m.atoms.length; j<jj; j++){
++            m.atoms[j].present = undefined;
++            }
++          }
++        }
++      }
++    this.doChecks = !force;
++    };
+ 
+-})(ChemDoodle);
++})(ChemDoodle, ChemDoodle.structures);
++// End Unistra dev
+ 
+ (function(c, document, undefined) {
+ 	'use strict';

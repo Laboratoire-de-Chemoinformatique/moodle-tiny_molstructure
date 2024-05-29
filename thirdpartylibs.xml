@@ -3,7 +3,7 @@
     <library>
         <location>chemdoodle/</location>
         <name>ChemDoodle</name>
-        <version>9.4.0</version>
+        <version>10.0.0</version>
         <license>GNU GPL</license>
         <licenseversion>3.0</licenseversion>
     </library>

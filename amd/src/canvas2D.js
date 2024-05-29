@@ -39,7 +39,7 @@ export const initCanvas2D = async(editor,
   ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
   // Main ketcher.
   const sketcher = new ChemDoodle.SketcherCanvas('sketcher', sketcherWidth, sketcherHeight,
-    {useServices:false, requireStartingAtom: false});
+    {useServices:false, requireStartingAtom: false, oneMolecule:true});
   // We init the ketcher with an empty molecule object.
   ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
   sketcher.styles.atoms_displayTerminalCarbonLabels_2D = true;
@@ -48,7 +48,8 @@ export const initCanvas2D = async(editor,
   sketcher.repaint();
 
   // Preview ketcher.
-  const sketcher_viewer = new ChemDoodle.ViewerCanvas('sketcher-viewer-tiny', sketcherViewerWidth, sketcherViewerHeight);
+  const sketcher_viewer = new ChemDoodle.ViewerCanvas(
+    Selectors.elements.canvas2D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
   sketcher_viewer.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher_viewer.styles.atoms_useJMOLColors = true;
   sketcher_viewer.styles.bonds_clearOverlaps_2D = true;
@@ -70,7 +71,7 @@ export const initCanvas2D = async(editor,
     }
   };
   iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer;
-  iframeContent.querySelector(Selectors.elements.canvas.resizeButton).addEventListener('click', function_resize, iframeBody);
+  iframeContent.querySelector(Selectors.elements.canvas2D.resizeButton).addEventListener('click', function_resize, iframeBody);
   // Need this for firefow ESR < 120 since has is not present by default
   window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
   await changeLangString(iframeContent);
@@ -80,9 +81,9 @@ export const initCanvas2D = async(editor,
     If empty, uses the default value. */
 export const function_resize= (e) => {
   const iframeContent = e.target.ownerDocument;
-  let input_width = iframeContent.querySelector(Selectors.elements.canvas.widthInput).valueAsNumber;
-  let input_height = iframeContent.querySelector(Selectors.elements.canvas.heightInput).valueAsNumber;
-  let sketcher_viewer = window.document.querySelector(Selectors.elements.canvas.selector2D).contentWindow.sketcherViewerVar;
+  let input_width = iframeContent.querySelector(Selectors.elements.canvas2D.widthInput).valueAsNumber;
+  let input_height = iframeContent.querySelector(Selectors.elements.canvas2D.heightInput).valueAsNumber;
+  let sketcher_viewer = window.document.querySelector(Selectors.elements.canvas2D.selector).contentWindow.sketcherViewerVar;
   let width;
   let height;
 
@@ -101,12 +102,12 @@ export const function_resize= (e) => {
 };
 
 export const changeLangString = async(iframeContent) => {
-  const button = iframeContent.querySelector(Selectors.elements.canvas.resizeButton);
+  const button = iframeContent.querySelector(Selectors.elements.canvas2D.resizeButton);
   button.firstChild.data =await getString('resize', component);
 
-  var height_input = iframeContent.querySelector(Selectors.elements.canvas.heightInputLabel);
+  var height_input = iframeContent.querySelector(Selectors.elements.canvas2D.heightInputLabel);
   height_input.firstChild.data = await getString('height', component);
 
-  var width_input = iframeContent.querySelector(Selectors.elements.canvas.widthInputLabel);
+  var width_input = iframeContent.querySelector(Selectors.elements.canvas2D.widthInputLabel);
   width_input.firstChild.data = await getString('width', component);
 };

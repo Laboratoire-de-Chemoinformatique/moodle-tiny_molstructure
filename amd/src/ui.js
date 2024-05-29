@@ -31,7 +31,6 @@ import * as Config from 'core/config';
 import {insertImage} from "./ketcher";
 import {initCanvas2D} from "./canvas2D";
 import {initCanvas3D} from "./canvas3D";
-
 /**
  * Handle action
  * @param {TinyMCE} editor
@@ -40,6 +39,7 @@ export const handleAction = (editor) => {
     displayDialogue(editor);
 };
 
+export let activeTab = null;
 /**
  * Display the equation editor
  * @param {TinyMCE} editor
@@ -56,39 +56,56 @@ export const displayDialogue = async(editor) => {
     modalPromises.show();
     const root = await modalPromises.getRoot();
 
-
     // Init canvas 2D.
     let editorRoot = root[0];
-    const iframeBody2D = editorRoot.querySelector(Selectors.elements.canvas.selector2D);
-    const iframeBody3D = editorRoot.querySelector(Selectors.elements.canvas.selector3D);
+    const iframeBody2D = editorRoot.querySelector(Selectors.elements.canvas2D.selector);
+    activeTab = editorRoot.querySelector(Selectors.elements.canvas2D.tabSelector);
+    const iframeBody3D = editorRoot.querySelector(Selectors.elements.canvas3D.selector);
     iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
         initCanvas2D(editor, iframeBody2D);
+        // Due to firefox need to force tab selection
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').classList.add('active');
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').setAttribute('aria-selected','true');
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('active');
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('show');
     });
-    iframeBody3D.contentWindow.addEventListener('DOMContentLoaded', function(){
+    iframeBody3D.onload = ()=> {
         initCanvas3D(editor, iframeBody3D);
-    });
-    // Due to firefox need to force tab selection
+    };
+    const tabs = editorRoot.querySelectorAll(Selectors.elements.tabsSelectors);
+    tabs.forEach(
+      (tab) => {
+          tab.addEventListener('click', e => {
+              activeTab = e.target;
+          });
+      }
+    );
 
     root.on(ModalEvents.hidden, (e) => {
         const submitAction = e.target.closest(Selectors.actions.submit);
         if (submitAction) {
             e.preventDefault();
-            // Select current iframe
-            const currentFrame = window.document.querySelector(Selectors.elements.canvas.selector2D);
-            insertImage(currentFrame, editor);
+            insertImageForActiveTab(editor);
         }
         modalPromises.destroy();
     });
     root.on(ModalEvents.save, (e) => {
         e.preventDefault();
-        const currentFrame = window.document.querySelector(Selectors.elements.canvas.selector2D);
-        insertImage(currentFrame, editor);
+        insertImageForActiveTab(editor);
         modalPromises.destroy();
     });
+};
+
+const insertImageForActiveTab = (editor) => {
+    // Select current iframe
+    const is3D = activeTab.getAttribute('id').match(/.*3D.*/g) === null ? false : true;
+    const selector =
+      is3D ? Selectors.elements.canvas3D.selector
+        : Selectors.elements.canvas2D.selector;
+    const ketcherViewId = is3D ? Selectors.elements.canvas3D.ketcherviewId
+      : Selectors.elements.canvas2D.ketcherviewId;
+    const currentFrame = window.document.querySelector(selector);
+    insertImage(currentFrame, editor, ketcherViewId);
 };
 
 /**

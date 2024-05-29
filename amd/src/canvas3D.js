@@ -33,73 +33,78 @@ export const initCanvas3D = async(editor,
                                   sketcherHeight=200,
                                   sketcherViewerWidth=100,
                                   sketcherViewerHeight=100) => {
-    const iframeContent = iframeBody.contentDocument;
-    let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
+  const iframeContent = iframeBody.contentDocument;
+  let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
+  ChemDoodle._Canvas3D.PRESERVE_DRAWING_BUFFER = true;
+  ChemDoodle.ELEMENT['H'].jmolColor = 'black';
+  ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+  // Main ketcher.
+  let sketcher3D = new ChemDoodle.EditorCanvas3D(
+    'sketcher3D', sketcherWidth, sketcherHeight, {useServices:false, includeToolbar: true}
+  );
+  //TODO put something to chosse
+  sketcher3D.styles.set3DRepresentation('Ball and Stick');
+  sketcher3D.styles.atoms_useJMOLColors = true;
+  sketcher3D.repaint();
 
-    // Main ketcher.
-    const sketcher3D = new ChemDoodle.EditorCanvas3D('sketcher3D', sketcherWidth, sketcherHeight,
-        {useServices:false});
-    sketcher3D.styles.atoms_useJMOLColors = true;
-    // We init the ketcher with an empty molecule object.
-    sketcher3D.repaint();
+  // Preview ketcher.
+  const sketcher_viewer_3D = new ChemDoodle.ViewerCanvas3D(
+    Selectors.elements.canvas3D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
+  sketcher_viewer_3D.styles.atoms_useJMOLColors = true;
+  sketcher_viewer_3D.emptyMessage = 'No data loaded';
+  sketcher3D.oldFunc = sketcher3D.checksOnAction;
 
-    // Preview ketcher.
-    const sketcher_viewer3D = new ChemDoodle.ViewerCanvas3D('sketcher3D-viewer-tiny', sketcherViewerWidth, sketcherViewerHeight);
-    sketcher_viewer3D.styles.atoms_useJMOLColors = true;
-    //sketcher_viewer.repaint();
-    sketcher_viewer3D.emptyMessage = 'No data loaded';
-    sketcher3D.oldFunc = sketcher.checksOnAction;
-
-    /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
-           updated at every modification of the main ketcher. */
-    sketcher3D.checksOnAction = function(force){
-        this.oldFunc(force);
-        //sketcher.repaint();
-        let mols = sketcher3D.molecule;
-        sketcher_viewer3D.loadMolecule(mols);
-        sketcher3D.center();
-        for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-            this.molecules[i].check();
-        }
-    };
-    iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer3D;
-    iframeContent.querySelector(Selectors.elements.canvas.resizeButton).addEventListener('click', function_resize, iframeBody);
-    // Need this for firefow ESR < 120 since has is not present by default
-    window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
-    await changeLangString(iframeContent);
+  /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
+         updated at every modification of the main ketcher. */
+  sketcher3D.checksOnAction = function(force){
+    this.oldFunc(force);
+    //sketcher.repaint();
+    let mols = sketcher3D.molecules;
+    let forms = sketcher3D.shapes;
+    sketcher_viewer_3D.loadContent(mols, forms);
+    sketcher3D.center();
+    for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
+      this.molecules[i].check();
+    }
+  };
+  iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer_3D;
+  iframeContent.querySelector(Selectors.elements.canvas3D.resizeButton).addEventListener('click', function_resize, iframeBody);
+  // Need this for firefow ESR < 120 since has is not present by default
+  window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
+  await changeLangString(iframeContent);
 };
 
 /*  Button activated function, checks for the values of width and height in the input elements.
     If empty, uses the default value. */
 export const function_resize= (e) => {
-    const iframeContent = e.target.ownerDocument;
-    let input_width = iframeContent.querySelector(Selectors.elements.canvas.widthInput).valueAsNumber;
-    let input_height = iframeContent.querySelector(Selectors.elements.canvas.heightInput).valueAsNumber;
-    let sketcher_viewer3D = window.document.querySelector(Selectors.elements.canvas.selector3D).contentWindow.sketcherViewerVar;
-    let width;
-    let height;
+  const iframeContent = e.target.ownerDocument;
+  let input_width = iframeContent.querySelector(Selectors.elements.canvas3D.widthInput).valueAsNumber;
+  let input_height = iframeContent.querySelector(Selectors.elements.canvas3D.heightInput).valueAsNumber;
+  let sketcher_viewer_3D = window.document.querySelector(Selectors.elements.canvas3D.selector).contentWindow.sketcherViewerVar;
+  let width;
+  let height;
 
-    if(input_width > 0 ) {
-        width = input_width;
-    } else {
-        width = 100;
-    }
+  if(input_width > 0 ) {
+    width = input_width;
+  } else {
+    width = 100;
+  }
 
-    if(input_height > 0 ) {
-        height = input_height;
-    } else {
-        height = 100;
-    }
-    sketcher_viewer3D.resize(width, height);
+  if(input_height > 0 ) {
+    height = input_height;
+  } else {
+    height = 100;
+  }
+  sketcher_viewer_3D.resize(width, height);
 };
 
 export const changeLangString = async(iframeContent) => {
-    const button = iframeContent.querySelector(Selectors.elements.canvas.resizeButton);
-    button.firstChild.data =await getString('resize', component);
+  const button = iframeContent.querySelector(Selectors.elements.canvas3D.resizeButton);
+  button.firstChild.data =await getString('resize', component);
 
-    var height_input = iframeContent.querySelector(Selectors.elements.canvas.heightInputLabel);
-    height_input.firstChild.data = await getString('height', component);
+  var height_input = iframeContent.querySelector(Selectors.elements.canvas3D.heightInputLabel);
+  height_input.firstChild.data = await getString('height', component);
 
-    var width_input = iframeContent.querySelector(Selectors.elements.canvas.widthInputLabel);
-    width_input.firstChild.data = await getString('width', component);
+  var width_input = iframeContent.querySelector(Selectors.elements.canvas3D.widthInputLabel);
+  width_input.firstChild.data = await getString('width', component);
 };
