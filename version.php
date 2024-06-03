@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tiny_molstructure';
-$plugin->release = '2.0.0';
-$plugin->version = 2024032502;
-$plugin->requires = 2023100903;
+$plugin->release = '2.0.1';
+$plugin->version = 2024052100;
+$plugin->requires = 2023042407;
 $plugin->maturity   = MATURITY_STABLE;
