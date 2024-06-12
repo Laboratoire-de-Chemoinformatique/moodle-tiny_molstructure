@@ -1,5 +1,5 @@
---- /datas/dev/moodle/moodle_gitworkspaces/chemoinformatique/moodle_plugins/lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-unpacked.js	2024-03-19 03:43:03.000000000 +0100
-+++ /datas/dev/moodle/moodle_gitworkspaces/chemoinformatique/moodle_plugins/lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/ChemDoodleWeb.js	2024-05-29 10:18:55.225948691 +0200
+--- lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-unpacked.js	2024-03-19 03:43:03.000000000 +0100
++++ lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/ChemDoodleWeb.js	2024-06-10 17:07:33.894354830 +0200
 @@ -15216,7 +15216,9 @@
  		
  		return molecule;
@@ -230,3 +230,15 @@
  
  (function(c, document, undefined) {
  	'use strict';
+@@ -19808,6 +19945,11 @@
+ 	            headers: {
+ 	                'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
+ 	                'X-Requested-With': 'XMLHttpRequest',
++          // Unistra Dev.
++          "Access-Control-Allow-Origin": "*",
++          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
++          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
++          // End Unistra Dev.
+ 	            },
+ 	            body: data,
+ 	            credentials: 'include'

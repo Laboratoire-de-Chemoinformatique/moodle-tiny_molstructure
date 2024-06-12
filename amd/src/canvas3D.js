@@ -33,32 +33,38 @@ export const initCanvas3D = async(editor,
                                   sketcherHeight=200,
                                   sketcherViewerWidth=100,
                                   sketcherViewerHeight=100) => {
+
   const iframeContent = iframeBody.contentDocument;
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
   ChemDoodle._Canvas3D.PRESERVE_DRAWING_BUFFER = true;
-  ChemDoodle.ELEMENT['H'].jmolColor = 'black';
-  ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+//  ChemDoodle.ELEMENT['H'].jmolColor = 'black';
+//  ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+
   // Main ketcher.
   let sketcher3D = new ChemDoodle.EditorCanvas3D(
     'sketcher3D', sketcherWidth, sketcherHeight, {useServices:false, includeToolbar: true}
   );
-  //TODO put something to chosse
   sketcher3D.styles.set3DRepresentation('Ball and Stick');
-  sketcher3D.styles.atoms_useJMOLColors = true;
-  sketcher3D.repaint();
+  sketcher3D.styles.backgroundColor = 'white';
+  sketcher3D.styles.atoms_useJMOLColors= true;
+  // TODO
+  ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
 
   // Preview ketcher.
   const sketcher_viewer_3D = new ChemDoodle.ViewerCanvas3D(
     Selectors.elements.canvas3D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
-  sketcher_viewer_3D.styles.atoms_useJMOLColors = true;
   sketcher_viewer_3D.emptyMessage = 'No data loaded';
+  sketcher_viewer_3D.styles.set3DRepresentation('Ball and Stick');
+  sketcher_viewer_3D.styles.backgroundColor = 'white';
+  sketcher_viewer_3D.styles.atoms_useJMOLColors= true;
   sketcher3D.oldFunc = sketcher3D.checksOnAction;
+
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
          updated at every modification of the main ketcher. */
+
   sketcher3D.checksOnAction = function(force){
     this.oldFunc(force);
-    //sketcher.repaint();
     let mols = sketcher3D.molecules;
     let forms = sketcher3D.shapes;
     sketcher_viewer_3D.loadContent(mols, forms);
@@ -66,7 +72,18 @@ export const initCanvas3D = async(editor,
     for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
       this.molecules[i].check();
     }
+    sketcher3D.repaint();
+    sketcher_viewer_3D.repaint();
   };
+  sketcher_viewer_3D.styles.set3DRepresentation('Ball and Stick');
+  // set the background color to black
+  sketcher_viewer_3D.styles.backgroundColor = 'white';
+
+
+
+
+
+  //try
   iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer_3D;
   iframeContent.querySelector(Selectors.elements.canvas3D.resizeButton).addEventListener('click', function_resize, iframeBody);
   // Need this for firefow ESR < 120 since has is not present by default

@@ -19945,6 +19945,11 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
         headers: {
           'Content-Type': isFormData ? 'multipart/form-data' : 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
+          // Unistra Dev.
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+          // End Unistra Dev.
         },
         body: data,
         credentials: 'include'

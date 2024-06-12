@@ -1,6 +1,17 @@
---- /datas/dev/moodle/moodle_gitworkspaces/chemoinformatique/moodle_plugins/lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-uis-unpacked.js	2024-03-19 03:43:03.000000000 +0100
-+++ /datas/dev/moodle/moodle_gitworkspaces/chemoinformatique/moodle_plugins/lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/uis/ChemDoodleWeb-uis.js	2024-05-28 11:03:12.139457000 +0200
-@@ -31297,9 +31297,15 @@
+--- lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-uis-unpacked.js	2024-03-19 03:43:03.000000000 +0100
++++ lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/uis/ChemDoodleWeb-uis.js	2024-06-10 17:07:33.670352641 +0200
+@@ -30938,7 +30938,9 @@
+ 						newContent = c.readRXN(s);
+ 					}else{
+ 						newContent = {
+-							molecules : [ c.readMOL(s) ],
++              // UNISTRA DEV.
++              molecules : [ c.readMOL(s,1) ],
++              // End Unistra Dev.
+ 							shapes : []
+ 						};
+ 					}
+@@ -31297,9 +31299,15 @@
  			} else {
  				if (sketcher.oneMolecule) {
  					sketcher.dialogManager.saveDialog.getTextArea().val(c.writeMOL(sketcher.molecules[0]));
@@ -16,7 +27,7 @@
  					}else{
  						cont = false;
  						alert('The MOLfile must be generated from a single chemical structure. Please draw and select a single molecule to be output as a MOLfile.');
-@@ -33403,6 +33409,9 @@
+@@ -33403,6 +33411,9 @@
  			} else {
  				if(editor.molecules.length>0){
  					editor.dialogManager.saveDialog.getTextArea().val(c.writeMOL(editor.molecules[0]));

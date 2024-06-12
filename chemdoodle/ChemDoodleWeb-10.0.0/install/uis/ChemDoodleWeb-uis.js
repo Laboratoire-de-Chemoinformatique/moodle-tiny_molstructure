@@ -30938,7 +30938,9 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
             newContent = c.readRXN(s);
           }else{
             newContent = {
-              molecules : [ c.readMOL(s) ],
+              // UNISTRA DEV.
+              molecules : [ c.readMOL(s,1) ],
+              // End Unistra Dev.
               shapes : []
             };
           }
