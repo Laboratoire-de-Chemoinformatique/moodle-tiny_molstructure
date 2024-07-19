@@ -31,6 +31,7 @@ import * as Config from 'core/config';
 import {insertImage} from "./ketcher";
 import {initCanvas2D} from "./canvas2D";
 import {initCanvas3D} from "./canvas3D";
+import {initCanvasSpectrum} from "./canvasSpectrum";
 /**
  * Handle action
  * @param {TinyMCE} editor
@@ -61,6 +62,8 @@ export const displayDialogue = async(editor) => {
     const iframeBody2D = editorRoot.querySelector(Selectors.elements.canvas2D.selector);
     activeTab = editorRoot.querySelector(Selectors.elements.canvas2D.tabSelector);
     const iframeBody3D = editorRoot.querySelector(Selectors.elements.canvas3D.selector);
+    const iframeBodySpectrum = editorRoot.querySelector(Selectors.elements.canvasSpectrum.selector);
+
     iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
         initCanvas2D(editor, iframeBody2D);
         // Due to firefox need to force tab selection
@@ -71,6 +74,9 @@ export const displayDialogue = async(editor) => {
     });
     iframeBody3D.onload = ()=> {
         initCanvas3D(editor, iframeBody3D);
+    };
+    iframeBodySpectrum.onload = ()=> {
+        initCanvasSpectrum(editor, iframeBodySpectrum);
     };
     const tabs = editorRoot.querySelectorAll(Selectors.elements.tabsSelectors);
     tabs.forEach(
@@ -99,11 +105,26 @@ export const displayDialogue = async(editor) => {
 const insertImageForActiveTab = (editor) => {
     // Select current iframe
     const is3D = activeTab.getAttribute('id').match(/.*3D.*/g) === null ? false : true;
-    const selector =
+    const isSpectrum = activeTab.getAttribute('id').match(/.*Spectrum.*/g) === null ? false : true;
+    /*const selector =
       is3D ? Selectors.elements.canvas3D.selector
         : Selectors.elements.canvas2D.selector;
     const ketcherViewId = is3D ? Selectors.elements.canvas3D.ketcherviewId
-      : Selectors.elements.canvas2D.ketcherviewId;
+      : Selectors.elements.canvas2D.ketcherviewId;*/
+    let selector;
+    let ketcherViewId;
+
+    if (isSpectrum) {
+        selector = Selectors.elements.canvasSpectrum.selector;
+        ketcherViewId = Selectors.elements.canvasSpectrum.ketcherviewId;
+    } else if (is3D) {
+        selector = Selectors.elements.canvas3D.selector;
+        ketcherViewId = Selectors.elements.canvas3D.ketcherviewId;
+    } else {
+        selector = Selectors.elements.canvas2D.selector;
+        ketcherViewId = Selectors.elements.canvas2D.ketcherviewId;
+    }
+
     const currentFrame = window.document.querySelector(selector);
     insertImage(currentFrame, editor, ketcherViewId);
 };
@@ -121,4 +142,3 @@ const getTemplateContext = (editor, data) => {
 
     }, data);
 };
-

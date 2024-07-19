@@ -1,0 +1,4 @@
+diff -Naur lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-uis-unpacked.js lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/uis/ChemDoodleWeb-uis.js > lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/patch_directory/ChemDoodleWeb-uis-unpacked.diff
+
+
+diff -Naur lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/src/ChemDoodleWeb-unpacked.js lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/install/ChemDoodleWeb.js > lib/editor/tiny/plugins/molstructure/chemdoodle/ChemDoodleWeb-10.0.0/patch_directory/ChemDoodleWeb-unpacked.diff

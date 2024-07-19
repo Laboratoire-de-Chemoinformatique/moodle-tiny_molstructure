@@ -1,6 +1,7 @@
 /* Molstructure css */
 .molstructure_2D_iframe,
-.molstructure_3D_iframe {
+.molstructure_3D_iframe,
+.molstructure_Spectrum_iframe {
     width: 100%;
     height: 100vh;
 
@@ -17,11 +18,21 @@
     align-self: center;
     padding: 1px;
 }
+
+.tiny_molstructure_wrapper .inputs_size_Spectrum {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    align-items: baseline;
+    width: 100%;
+}
+
 .tiny_molstructure_wrapper .inputs_size div {
     padding: 1px;
 }
 
 div.modal-content:has(.molstructure_2D_iframe),
-div.modal-content:has(.molstructure_3D_iframe) {
+div.modal-content:has(.molstructure_3D_iframe),
+div.modal-content:has(.molstructure_Spectrum_iframe) {
     height: 100vh;
 }

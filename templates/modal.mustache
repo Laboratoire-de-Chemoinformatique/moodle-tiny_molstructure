@@ -54,6 +54,13 @@
                     {{#str}}3Dcanvas,tiny_molstructure{{/str}}
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" id="molstructure-tab-Spectrum-{{elementid}}" data-toggle="tab"
+                   role="tab" aria-controls="molstructure-tabcontent-Spectrum-{{elementid}}"
+                   aria-selected="false" href="#molstructure-tabcontent-Spectrum-{{elementid}}">
+                    {{#str}}SpectrumCanvas,tiny_molstructure{{/str}}
+                </a>
+            </li>
         </ul>
         <div class="tab-content" id="molstructure_divcontent_{{elementid}}">
             <div class="fade tab-pane" id="molstructure-tabcontent-2D-{{elementid}}" role="tab-panel" aria-labeled="molstructure-tab-2D-{{elementid}}">
@@ -61,6 +68,9 @@
             </div>
             <div class="fade tab-pane" id="molstructure-tabcontent-3D-{{elementid}}" role="tab-panel" aria-labeled="molstructure-tab-3D-{{elementid}}">
                 {{> tiny_molstructure/modal_3D}}
+            </div>
+            <div class="fade tab-pane" id="molstructure-tabcontent-Spectrum-{{elementid}}" role="tab-panel" aria-labeled="molstructure-tab-Spectrum-{{elementid}}">
+                {{> tiny_molstructure/modal_Spectrum}}
             </div>
         </div>
 

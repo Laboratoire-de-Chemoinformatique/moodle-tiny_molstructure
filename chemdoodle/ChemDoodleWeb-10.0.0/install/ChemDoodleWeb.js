@@ -15281,8 +15281,6 @@ ChemDoodle.RESIDUE = (function(undefined) {
         sb.push(this.fit(a.label, 3, true));
         sb.push(mass);
         sb.push(charge);
-        sb.push('  0  0  0  0\n');
-        // Unistra dev.
         sb.push('  0  0  0  0  0  0  0');
         sb.push(this.fit((atommapp).toString(), 3));
         sb.push('  0  0\n');
@@ -17098,8 +17096,10 @@ ChemDoodle.monitor = (function(featureDetection, document, undefined) {
     let cap = window.document.querySelector('#'+this.id);
     cap.setAttribute('width', w);
     cap.setAttribute('height', h);
-    cap.style.width =  w;
-    cap.style.height =  h;
+    cap.style.width =  w + 'px';
+    cap.style.height =  h + 'px';
+    this.width = w;
+    this.height = h;
     // End UNISTRA dev bug correction
     if (c._Canvas3D && this instanceof c._Canvas3D) {
       let wu = w;

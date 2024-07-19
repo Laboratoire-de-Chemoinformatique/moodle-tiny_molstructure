@@ -36,56 +36,46 @@ export const initCanvas3D = async(editor,
 
   const iframeContent = iframeBody.contentDocument;
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
-  ChemDoodle._Canvas3D.PRESERVE_DRAWING_BUFFER = true;
-//  ChemDoodle.ELEMENT['H'].jmolColor = 'black';
-//  ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+  //ChemDoodle._Canvas3D.PRESERVE_DRAWING_BUFFER = true;
 
   // Main ketcher.
-  let sketcher3D = new ChemDoodle.EditorCanvas3D(
+  /*let sketcher3D = new ChemDoodle.EditorCanvas3D(
     'sketcher3D', sketcherWidth, sketcherHeight, {useServices:false, includeToolbar: true}
   );
   sketcher3D.styles.set3DRepresentation('Ball and Stick');
   sketcher3D.styles.backgroundColor = 'white';
-  sketcher3D.styles.atoms_useJMOLColors= true;
-  // TODO
-  ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
+  sketcher3D.styles.atoms_useJMOLColors= true;*/
+  //sketcher3D.repaint();
+  let sketcher3D = new ChemDoodle.SketcherCanvas('sketcher3D', sketcherWidth, sketcherHeight,
+      {useServices:false, requireStartingAtom: false, oneMolecule:false});
+
+  sketcher3D.styles.atoms_displayTerminalCarbonLabels_2D = true;
+  sketcher3D.styles.atoms_useJMOLColors = true;
+  sketcher3D.styles.bonds_clearOverlaps_2D = true;
+  sketcher3D.repaint();
 
   // Preview ketcher.
-  const sketcher_viewer_3D = new ChemDoodle.ViewerCanvas3D(
+  let sketcher_viewer_3D = new ChemDoodle.ViewerCanvas3D(
     Selectors.elements.canvas3D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
   sketcher_viewer_3D.emptyMessage = 'No data loaded';
   sketcher_viewer_3D.styles.set3DRepresentation('Ball and Stick');
   sketcher_viewer_3D.styles.backgroundColor = 'white';
   sketcher_viewer_3D.styles.atoms_useJMOLColors= true;
+  //sketcher3D.oldFunc = sketcher3D.checksOnAction;
   sketcher3D.oldFunc = sketcher3D.checksOnAction;
-
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
          updated at every modification of the main ketcher. */
 
   sketcher3D.checksOnAction = function(force){
     this.oldFunc(force);
-    let mols = sketcher3D.molecules;
-    let forms = sketcher3D.shapes;
-    sketcher_viewer_3D.loadContent(mols, forms);
-    sketcher3D.center();
-    for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-      this.molecules[i].check();
-    }
-    sketcher3D.repaint();
-    sketcher_viewer_3D.repaint();
+    let moltest = ChemDoodle.writeMOL(sketcher3D.getMolecule());
+    let moltest2 = ChemDoodle.readMOL(moltest, 1);
+    sketcher_viewer_3D.loadMolecule(moltest2);
   };
-  sketcher_viewer_3D.styles.set3DRepresentation('Ball and Stick');
-  // set the background color to black
-  sketcher_viewer_3D.styles.backgroundColor = 'white';
 
-
-
-
-
-  //try
-  iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer_3D;
-  iframeContent.querySelector(Selectors.elements.canvas3D.resizeButton).addEventListener('click', function_resize, iframeBody);
+  iframeContent.querySelector(Selectors.elements.canvas3D.resizeButton)
+      .addEventListener('click', (e) => function_resize(e, sketcher_viewer_3D), iframeBody);
   // Need this for firefow ESR < 120 since has is not present by default
   window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
   await changeLangString(iframeContent);
@@ -93,11 +83,10 @@ export const initCanvas3D = async(editor,
 
 /*  Button activated function, checks for the values of width and height in the input elements.
     If empty, uses the default value. */
-export const function_resize= (e) => {
+export const function_resize= (e, sketcher_viewer_3D) => {
   const iframeContent = e.target.ownerDocument;
   let input_width = iframeContent.querySelector(Selectors.elements.canvas3D.widthInput).valueAsNumber;
   let input_height = iframeContent.querySelector(Selectors.elements.canvas3D.heightInput).valueAsNumber;
-  let sketcher_viewer_3D = window.document.querySelector(Selectors.elements.canvas3D.selector).contentWindow.sketcherViewerVar;
   let width;
   let height;
 
@@ -106,7 +95,6 @@ export const function_resize= (e) => {
   } else {
     width = 100;
   }
-
   if(input_height > 0 ) {
     height = input_height;
   } else {

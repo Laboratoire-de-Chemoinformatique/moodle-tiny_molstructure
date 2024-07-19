@@ -37,11 +37,11 @@ export const initCanvas2D = async(editor,
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
   ChemDoodle.ELEMENT['H'].jmolColor = 'black';
   ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+
   // Main ketcher.
   const sketcher = new ChemDoodle.SketcherCanvas('sketcher', sketcherWidth, sketcherHeight,
     {useServices:false, requireStartingAtom: false, oneMolecule:true});
-  // We init the ketcher with an empty molecule object.
-  ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
+  //ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
   sketcher.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher.styles.atoms_useJMOLColors = true;
   sketcher.styles.bonds_clearOverlaps_2D = true;
@@ -53,15 +53,14 @@ export const initCanvas2D = async(editor,
   sketcher_viewer.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher_viewer.styles.atoms_useJMOLColors = true;
   sketcher_viewer.styles.bonds_clearOverlaps_2D = true;
-  //sketcher_viewer.repaint();
   sketcher_viewer.emptyMessage = 'No data loaded';
   sketcher.oldFunc = sketcher.checksOnAction;
+
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
          updated at every modification of the main ketcher. */
   sketcher.checksOnAction = function(force){
     this.oldFunc(force);
-    //sketcher.repaint();
     let mols = sketcher.molecules;
     let forms = sketcher.shapes;
     sketcher_viewer.loadContent(mols, forms);
@@ -70,6 +69,7 @@ export const initCanvas2D = async(editor,
       this.molecules[i].check();
     }
   };
+
   iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer;
   iframeContent.querySelector(Selectors.elements.canvas2D.resizeButton).addEventListener('click', function_resize, iframeBody);
   // Need this for firefow ESR < 120 since has is not present by default

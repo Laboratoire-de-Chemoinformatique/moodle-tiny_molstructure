@@ -30937,12 +30937,21 @@ ChemDoodle.uis.gui.templateDepot = (function(JSON, localStorage, undefined) {
           if(s.startsWith('$RXN')){
             newContent = c.readRXN(s);
           }else{
-            newContent = {
-              // UNISTRA DEV.
-              molecules : [ c.readMOL(s,1) ],
-              // End Unistra Dev.
-              shapes : []
-            };
+              if(sketcher instanceof ChemDoodle.EditorCanvas3D){
+                  newContent = {
+                      // UNISTRA DEV.
+                      molecules : [ c.readMOL(s, 1) ],
+                      // End Unistra Dev.
+                      shapes : []
+                  };
+              } else {
+                newContent = {
+                  // UNISTRA DEV.
+                  molecules : [ c.readMOL(s) ],
+                  // End Unistra Dev.
+                  shapes : []
+                };
+              }
           }
         } else if (s.charAt(0) === '{') {
           newContent = c.readJSON(s);

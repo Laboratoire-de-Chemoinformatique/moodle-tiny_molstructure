@@ -34,7 +34,16 @@ $string['modaltitle'] = 'Molstructure';
 $string['resize'] = 'resize image';
 $string['height'] = 'height';
 $string['width'] = 'width';
+$string['update'] = 'update image';
+$string['xlabel'] = 'x axis label';
+$string['ylabel'] = 'y axis label';
+$string['jcamp'] = 'Insert a JCAMP file';
+$string['integration'] = 'Show integration';
+$string['inverseaxis'] = 'Inverse X axis';
+$string['title'] = 'Title of the Spectrum';
 $string['dialogtitle'] = 'Draw a molecule, resize the canvas and click on insert.';
 $string['instructions'] = 'Build your structure or reaction, you can resize the image by clicking on the "resize" button, and then click on the "Insert Image" button.';
 $string['2Dcanvas'] = '2D molecule representation';
 $string['3Dcanvas'] = '3D molecule representation';
+$string['SpectrumCanvas'] = 'Spectrum representation';
+

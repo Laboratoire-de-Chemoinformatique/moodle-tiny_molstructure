@@ -50,6 +50,25 @@ export default {
             heightInput: '#height_input_molstructure-3D',
             widthInput: '#width_input_molstructure-3D',
             resizeButton: '#button-size-button-3D'
+        },
+        canvasSpectrum: {
+            tabSelector: 'ul[id^=molstructure-navbar] a[data-toggle="tab"][id^=molstructure-tab-Spectrum]',
+            selector: '.molstructure_Spectrum_iframe',
+            ketcherviewId: 'sketcher-viewer-tiny-Spectrum',
+            viewId: 'viewer_canvas-container-Spectrum',
+            xlabelInputLabel: '#label_xlabel_input_molstructure-Spectrum',
+            ylabelInputLabel: '#label_ylabel_input_molstructure-Spectrum',
+            jcampInputLabel: '#label_jcamp_input_molstructure-Spectrum',
+            inversexaxisInputLabel: '#label_inversexaxis_input_molstructure-Spectrum',
+            integrationInputLabel: '#label_integration_input_molstructure-Spectrum',
+            titleInputLabel: '#label_title_input_molstructure-Spectrum',
+            xlabelInput: '#xlabel_input_molstructure-Spectrum',
+            ylabelInput: '#ylabel_input_molstructure-Spectrum',
+            jcampInput: '#jcamp_input_molstructure-Spectrum',
+            inversexaxisInput: '#inversexaxis_input_molstructure-Spectrum',
+            integrationInput: '#integration_input_molstructure-Spectrum',
+            titleInput: '#title_input_molstructure-Spectrum',
+            updateButton: '#button-size-button-Spectrum'
         }
     }
 };
