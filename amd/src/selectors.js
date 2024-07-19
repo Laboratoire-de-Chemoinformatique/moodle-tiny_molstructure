@@ -55,7 +55,7 @@ export default {
             tabSelector: 'ul[id^=molstructure-navbar] a[data-toggle="tab"][id^=molstructure-tab-Spectrum]',
             selector: '.molstructure_Spectrum_iframe',
             ketcherviewId: 'sketcher-viewer-tiny-Spectrum',
-            viewId: 'viewer_canvas-container-Spectrum',
+            viewId: '#viewer-container-Spectrum',
             xlabelInputLabel: '#label_xlabel_input_molstructure-Spectrum',
             ylabelInputLabel: '#label_ylabel_input_molstructure-Spectrum',
             jcampInputLabel: '#label_jcamp_input_molstructure-Spectrum',
@@ -68,7 +68,8 @@ export default {
             inversexaxisInput: '#inversexaxis_input_molstructure-Spectrum',
             integrationInput: '#integration_input_molstructure-Spectrum',
             titleInput: '#title_input_molstructure-Spectrum',
-            updateButton: '#button-size-button-Spectrum'
+            updateButton: '#button-size-button-Spectrum',
+            inputButton: '#button-input-Spectrum'
         }
     }
 };

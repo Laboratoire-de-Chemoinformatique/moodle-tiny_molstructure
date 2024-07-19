@@ -16,6 +16,7 @@ import notification from "core/notification";
 import Ajax from 'core/ajax';
 import {getDraftItemId} from 'editor_tiny/options';
 import {getContextId} from "./options";
+import Selectors from 'tiny_molstructure/selectors';
 
 /**
  * @module     tiny_molstructure/ketcher
@@ -31,7 +32,12 @@ export const insertImage = async(iframeBody, editor, ketcherviewId) => {
   let divContent = '';
   // Getting the viewer canvas.
   let ketcherViewer = iframeBody.contentDocument.querySelector('#'+ketcherviewId);
-  const imgDataURL = ketcherViewer.toDataURL('image/svg');
+  let imgDataURL;
+  if (ketcherviewId === Selectors.elements.canvasSpectrum.ketcherviewId) {
+    imgDataURL = ketcherViewer.src;
+  } else {
+    imgDataURL = ketcherViewer.toDataURL('image/svg');
+  }
   const itemId = getDraftItemId(editor);
   const fileReturn = await createAnUploadImageFile(itemId, imgDataURL, getContextId(editor));
   // To retrieve image.

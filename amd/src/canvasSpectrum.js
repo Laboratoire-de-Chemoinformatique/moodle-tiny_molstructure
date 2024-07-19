@@ -74,6 +74,14 @@ export const initCanvasSpectrum = async(editor,
     iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer;*/
     iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateButton)
         .addEventListener('click', (e) => function_update(e, ChemDoodle, sketcherSpectrum), iframeBody);
+
+    iframeContent.querySelector(Selectors.elements.canvasSpectrum.inputButton)
+        .addEventListener('click', function() {
+            iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput).click();
+        });
+    iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput)
+        .addEventListener('change', (e) => function_insert(e, ChemDoodle, sketcherSpectrum), iframeBody);
+
     // Need this for firefow ESR < 120 since has is not present by default
     window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
     await changeLangString(iframeContent);
@@ -86,54 +94,70 @@ export const  function_displaySVG= (iframeContent) => {
     const imgElement = iframeContent.createElement('img');
     imgElement.src = imgDataURL;
     imgElement.id = Selectors.elements.canvasSpectrum.ketcherviewId;
-    iframeContent.querySelector(Selectors.elements.canvasSpectrum.viewId).innerHTML = ''; // Clear previous content
+    let testimg = iframeContent.querySelector(Selectors.elements.canvasSpectrum.viewId);
+    testimg.innerHTML = ''; // Clear previous content
     iframeContent.querySelector(Selectors.elements.canvasSpectrum.viewId).appendChild(imgElement);
 };
 /*  Button activated function, checks for the values of JcampFile, xlabel and ylabel in the input elements.
     If empty, uses the default value. */
-export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
+export const function_insert= (e, ChemDoodle, sketcherSpectrum) => {
     const iframeContent = e.target.ownerDocument;
-
-    let xLabel = iframeContent.querySelector(Selectors.elements.canvasSpectrum.xlabelInput).value;
-    let yLabel = iframeContent.querySelector(Selectors.elements.canvasSpectrum.ylabelInput).value;
-    let title =  iframeContent.querySelector(Selectors.elements.canvasSpectrum.titleInput).value;
-    let spectrumJcampFile = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput).value;
-    let integration = iframeContent.querySelector(Selectors.elements.canvasSpectrum.integrationInput);
-    let inverseAxis = iframeContent.querySelector(Selectors.elements.canvasSpectrum.inversexaxisInput);
-
     sketcherSpectrum.spectrum = undefined;
     sketcherSpectrum.repaint();
 
-    let spectrum = ChemDoodle.readJCAMP(spectrumJcampFile);
-    let spectrum2 = ChemDoodle.readJCAMP(iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput).value);
-
-    sketcherSpectrum.loadSpectrum(spectrum);
-    sketcherSpectrum.loadSpectrum(spectrum2);
-
-    spectrum.xUnit = xLabel;
-    spectrum.yUnit = yLabel;
-    spectrum.title = title;
-    if (integration.checked) {
-        sketcherSpectrum.styles.plots_showIntegration = true;
-    } else {
-        sketcherSpectrum.styles.plots_showIntegration = false;
+    const file = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput).files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            let content = e.target.result;
+            let spectrum = ChemDoodle.readJCAMP(content);
+            sketcherSpectrum.loadSpectrum(spectrum);
+        };
+        reader.readAsText(file);
     }
-    if (inverseAxis.checked) {
-        sketcherSpectrum.styles.plots_flipXAxis = true;
-    } else {
-        sketcherSpectrum.styles.plots_flipXAxis = false;
+    function_displaySVG(iframeContent);
+};
+export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
+    const iframeContent = e.target.ownerDocument;
+    const file = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput).files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            let content = e.target.result;
+            let spectrum = ChemDoodle.readJCAMP(content);
+            let xLabel = iframeContent.querySelector(Selectors.elements.canvasSpectrum.xlabelInput).value;
+            let yLabel = iframeContent.querySelector(Selectors.elements.canvasSpectrum.ylabelInput).value;
+            let title = iframeContent.querySelector(Selectors.elements.canvasSpectrum.titleInput).value;
+            let integration = iframeContent.querySelector(Selectors.elements.canvasSpectrum.integrationInput);
+            let inverseAxis = iframeContent.querySelector(Selectors.elements.canvasSpectrum.inversexaxisInput);
+
+            if (xLabel !== '') {
+                spectrum.xUnit = xLabel;
+            }
+            if (yLabel !== '') {
+                spectrum.yUnit = yLabel;
+            }
+            if (title !== '') {
+                spectrum.title = title;
+            }
+
+            sketcherSpectrum.styles.plots_showIntegration = integration.checked ? true : false;
+            sketcherSpectrum.styles.plots_flipXAxis = inverseAxis.checked ? true : false;
+            sketcherSpectrum.loadSpectrum(spectrum);
+
+            function_displaySVG(iframeContent);
+        };
+        reader.readAsText(file);
     }
-    //sketcherSpectrum.loadSpectrum(spectrum);
-    //function_displaySVG(iframeContent);
 };
 
 export const changeLangString = async(iframeContent) => {
     const button = iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateButton);
     button.firstChild.data = await getString('update', component);
 
-    var jcampfile = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInputLabel);
+    /*var jcampfile = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInputLabel);
     jcampfile.firstChild.data = await getString('jcamp', component);
-
+*/
     var xlabel = iframeContent.querySelector(Selectors.elements.canvasSpectrum.xlabelInputLabel);
     xlabel.firstChild.data = await getString('xlabel', component);
 
