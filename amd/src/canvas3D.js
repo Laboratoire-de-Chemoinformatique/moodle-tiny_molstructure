@@ -36,32 +36,32 @@ export const initCanvas3D = async(editor,
 
   const iframeContent = iframeBody.contentDocument;
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
-  //ChemDoodle._Canvas3D.PRESERVE_DRAWING_BUFFER = true;
+  ChemDoodle._Canvas3D.PRESERVE_DRAWING_BUFFER = true;
 
   // Main ketcher.
-  /*let sketcher3D = new ChemDoodle.EditorCanvas3D(
+  let sketcher3D = new ChemDoodle.EditorCanvas3D(
     'sketcher3D', sketcherWidth, sketcherHeight, {useServices:false, includeToolbar: true}
   );
   sketcher3D.styles.set3DRepresentation('Ball and Stick');
   sketcher3D.styles.backgroundColor = 'white';
-  sketcher3D.styles.atoms_useJMOLColors= true;*/
-  //sketcher3D.repaint();
-  let sketcher3D = new ChemDoodle.SketcherCanvas('sketcher3D', sketcherWidth, sketcherHeight,
+  sketcher3D.styles.atoms_useJMOLColors= true;
+  sketcher3D.repaint();
+  /*let sketcher3D = new ChemDoodle.SketcherCanvas('sketcher3D', sketcherWidth, sketcherHeight,
       {useServices:false, requireStartingAtom: false, oneMolecule:false});
 
   sketcher3D.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher3D.styles.atoms_useJMOLColors = true;
   sketcher3D.styles.bonds_clearOverlaps_2D = true;
-  sketcher3D.repaint();
+  sketcher3D.repaint();*/
 
   // Preview ketcher.
-  let sketcher_viewer_3D = new ChemDoodle.ViewerCanvas3D(
+  let sketcher_viewer_3D = new ChemDoodle.TransformCanvas3D(
     Selectors.elements.canvas3D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
   sketcher_viewer_3D.emptyMessage = 'No data loaded';
   sketcher_viewer_3D.styles.set3DRepresentation('Ball and Stick');
   sketcher_viewer_3D.styles.backgroundColor = 'white';
   sketcher_viewer_3D.styles.atoms_useJMOLColors= true;
-  //sketcher3D.oldFunc = sketcher3D.checksOnAction;
+  sketcher3D.emptyMessage="Please insert a molecule in the editor area above.";
   sketcher3D.oldFunc = sketcher3D.checksOnAction;
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
@@ -70,7 +70,7 @@ export const initCanvas3D = async(editor,
   sketcher3D.checksOnAction = function(force){
     this.oldFunc(force);
     let moltest = ChemDoodle.writeMOL(sketcher3D.getMolecule());
-    let moltest2 = ChemDoodle.readMOL(moltest, 1);
+    let moltest2 = ChemDoodle.readMOL(moltest);
     sketcher_viewer_3D.loadMolecule(moltest2);
   };
 

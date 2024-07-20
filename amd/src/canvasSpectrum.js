@@ -112,10 +112,11 @@ export const function_insert= (e, ChemDoodle, sketcherSpectrum) => {
             let content = e.target.result;
             let spectrum = ChemDoodle.readJCAMP(content);
             sketcherSpectrum.loadSpectrum(spectrum);
+
+            function_displaySVG(iframeContent);
         };
         reader.readAsText(file);
     }
-    function_displaySVG(iframeContent);
 };
 export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
     const iframeContent = e.target.ownerDocument;
