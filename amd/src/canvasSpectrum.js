@@ -144,7 +144,7 @@ export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
 
             sketcherSpectrum.styles.plots_showIntegration = integration.checked ? true : false;
             sketcherSpectrum.styles.plots_flipXAxis = inverseAxis.checked ? true : false;
-            sketcherSpectrum.loadSpectrum(spectrum);
+            //sketcherSpectrum.loadSpectrum(spectrum);
 
             function_displaySVG(iframeContent);
         };

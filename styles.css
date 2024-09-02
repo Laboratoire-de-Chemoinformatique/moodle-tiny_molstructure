@@ -19,17 +19,79 @@
     padding: 1px;
 }
 
-.tiny_molstructure_wrapper .inputs_size_Spectrum {
+
+.inputs_size_Spectrum {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    align-items: baseline;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    align-items: center;
     width: 100%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
 }
 
-.tiny_molstructure_wrapper .inputs_size div {
-    padding: 1px;
+.inputs_size_Spectrum div {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
 }
+
+.inputs_size_Spectrum label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.inputs_size_Spectrum input[type="text"],
+.inputs_size_Spectrum input[type="file"],
+.inputs_size_Spectrum button {
+    padding: 8px;
+    width: 100%;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.inputs_size_Spectrum button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.inputs_size_Spectrum button:hover {
+    background-color: #0056b3;
+}
+
+.inputs_size_Spectrum input[type="checkbox"] {
+    margin-left: 10px;
+}
+
+@media screen and (max-width: 600px) {
+    .inputs_size_Spectrum {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .inputs_size_Spectrum div {
+        width: 100%;
+    }
+
+    .inputs_size_Spectrum button {
+        width: 100%;
+    }
+
+    .inputs_size_Spectrum input[type="text"],
+    .inputs_size_Spectrum input[type="file"],
+    .inputs_size_Spectrum input[type="checkbox"] {
+        width: auto;
+    }
+}
+
 
 div.modal-content:has(.molstructure_2D_iframe),
 div.modal-content:has(.molstructure_3D_iframe),
