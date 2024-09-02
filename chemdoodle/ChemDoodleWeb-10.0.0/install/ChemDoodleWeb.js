@@ -15281,6 +15281,7 @@ ChemDoodle.RESIDUE = (function(undefined) {
         sb.push(this.fit(a.label, 3, true));
         sb.push(mass);
         sb.push(charge);
+	// Unistra dev.
         sb.push('  0  0  0  0  0  0  0');
         sb.push(this.fit((atommapp).toString(), 3));
         sb.push('  0  0\n');
