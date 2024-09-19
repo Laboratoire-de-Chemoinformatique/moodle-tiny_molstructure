@@ -34,7 +34,7 @@ $string['modaltitle'] = 'Molstructure';
 $string['resize'] = 'resize image';
 $string['height'] = 'height';
 $string['width'] = 'width';
-$string['update'] = 'update image';
+$string['update'] = 'Update the preview representation';
 $string['xlabel'] = 'x axis label';
 $string['ylabel'] = 'y axis label';
 $string['jcamp'] = 'Insert a JCAMP file';
@@ -46,4 +46,5 @@ $string['instructions'] = 'Build your structure or reaction, you can resize the 
 $string['2Dcanvas'] = '2D molecule representation';
 $string['3Dcanvas'] = '3D molecule representation';
 $string['SpectrumCanvas'] = 'Spectrum representation';
+$string['updateKetcherButton'] = 'Update the top representation';
 

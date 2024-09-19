@@ -69,7 +69,8 @@ export default {
             integrationInput: '#integration_input_molstructure-Spectrum',
             titleInput: '#title_input_molstructure-Spectrum',
             updateButton: '#button-size-button-Spectrum',
-            inputButton: '#button-input-Spectrum'
+            inputButton: '#button-input-Spectrum',
+            updateKetcherButton: '#button-updateKetcher-Spectrum'
         }
     }
 };

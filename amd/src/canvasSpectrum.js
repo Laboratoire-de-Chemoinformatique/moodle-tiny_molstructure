@@ -44,36 +44,9 @@ export const initCanvasSpectrum = async(editor,
     sketcherSpectrum.styles.text_font_families[1] = "Charcoal";
     sketcherSpectrum.styles.text_font_families[2] = 'sans-serif';
     sketcherSpectrum.repaint();
-    //let spectrum = ChemDoodle.readJCAMP(spectrumJcampFile);
 
-    //sketcherSpectrum.loadSpectrum(spectrum);
-
-    // Preview ketcher.
-    /*const sketcher_viewer_spectrum = new ChemDoodle.ViewerCanvas(
-        Selectors.elements.canvas2D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
-    sketcher_viewer_spectrum.styles.atoms_displayTerminalCarbonLabels_2D = true;
-    sketcher_viewer_spectrum.styles.atoms_useJMOLColors = true;
-    sketcher_viewer_spectrum.styles.bonds_clearOverlaps_2D = true;
-    //sketcher_viewer.repaint();
-    sketcher_viewer_spectrum.emptyMessage = 'No data loaded';
-    sketcher.oldFunc = sketcher.checksOnAction;*/
-
-    /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
-           updated at every modification of the main ketcher.
-    sketcher.checksOnAction = function(force){
-        this.oldFunc(force);
-        //sketcher.repaint();
-        let mols = sketcher.molecules;
-        let forms = sketcher.shapes;
-        sketcher_viewer_spectrum.loadContent(mols, forms);
-        sketcher.center();
-        for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
-            this.molecules[i].check();
-        }
-    };
-    iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer;*/
     iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateButton)
-        .addEventListener('click', (e) => function_update(e, ChemDoodle, sketcherSpectrum), iframeBody);
+        .addEventListener('click', (e) => function_update(e), iframeBody);
 
     iframeContent.querySelector(Selectors.elements.canvasSpectrum.inputButton)
         .addEventListener('click', function() {
@@ -81,6 +54,9 @@ export const initCanvasSpectrum = async(editor,
         });
     iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput)
         .addEventListener('change', (e) => function_insert(e, ChemDoodle, sketcherSpectrum), iframeBody);
+
+    iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateKetcherButton)
+        .addEventListener('click', (e) => function_update_ketcher(e, ChemDoodle, sketcherSpectrum), iframeBody);
 
     // Need this for firefow ESR < 120 since has is not present by default
     window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
@@ -118,7 +94,12 @@ export const function_insert= (e, ChemDoodle, sketcherSpectrum) => {
         reader.readAsText(file);
     }
 };
-export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
+export const function_update= (e) => {
+    const iframeContent = e.target.ownerDocument;
+    function_displaySVG(iframeContent);
+};
+
+export const function_update_ketcher= (e, ChemDoodle, sketcherSpectrum) => {
     const iframeContent = e.target.ownerDocument;
     const file = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInput).files[0];
     if (file) {
@@ -144,9 +125,7 @@ export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
 
             sketcherSpectrum.styles.plots_showIntegration = integration.checked ? true : false;
             sketcherSpectrum.styles.plots_flipXAxis = inverseAxis.checked ? true : false;
-            //sketcherSpectrum.loadSpectrum(spectrum);
-
-            function_displaySVG(iframeContent);
+            sketcherSpectrum.loadSpectrum(spectrum);
         };
         reader.readAsText(file);
     }
@@ -155,6 +134,9 @@ export const function_update= (e, ChemDoodle, sketcherSpectrum) => {
 export const changeLangString = async(iframeContent) => {
     const button = iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateButton);
     button.firstChild.data = await getString('update', component);
+
+    const button2 = iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateKetcherButton);
+    button2.firstChild.data = await  getString('updateKetcherButton', component);
 
     /*var jcampfile = iframeContent.querySelector(Selectors.elements.canvasSpectrum.jcampInputLabel);
     jcampfile.firstChild.data = await getString('jcamp', component);
