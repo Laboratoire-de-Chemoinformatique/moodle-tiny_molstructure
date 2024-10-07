@@ -44,6 +44,22 @@ use filter_manager;
  */
 class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menuitems, plugin_with_configuration {
 
+    #[\Override]
+    public static function is_enabled(
+            context $context,
+            array $options,
+            array $fpoptions,
+            ?editor $editor = null
+    ): bool {
+        // Disabled if:
+        // - Not logged in or guest.
+        // - Files are not allowed.
+        // - Only URL are supported.
+        $canhavefiles = !empty($options['maxfiles']);
+        $canhaveexternalfiles = !empty($options['return_types']) && ($options['return_types'] & FILE_EXTERNAL);
+        return isloggedin() && !isguestuser() && $canhavefiles && $canhaveexternalfiles;
+    }
+
     /**
      * return available buttons
      * @return string[]
