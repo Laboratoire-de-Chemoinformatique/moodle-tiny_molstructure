@@ -38,3 +38,4 @@ $string['dialogtitle'] = 'Draw a molecule, resize the canvas and click on insert
 $string['instructions'] = 'Build your structure or reaction, you can resize the image by clicking on the "resize" button, and then click on the "Insert Image" button.';
 $string['2Dcanvas'] = '2D molecule representation';
 $string['3Dcanvas'] = '3D molecule representation';
+$string['privacy:metadata'] = 'The Chemical substance plugin does not store any personal data.';
