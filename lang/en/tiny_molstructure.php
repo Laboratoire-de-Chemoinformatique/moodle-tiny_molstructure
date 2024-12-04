@@ -47,4 +47,5 @@ $string['2Dcanvas'] = '2D molecule representation';
 $string['3Dcanvas'] = '3D molecule representation';
 $string['SpectrumCanvas'] = 'Spectrum representation';
 $string['updateKetcherButton'] = 'Update the top representation';
+$string['privacy:metadata'] = 'The Chemical substance plugin does not store any personal data.';
 
