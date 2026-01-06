@@ -48,4 +48,4 @@ $string['3Dcanvas'] = '3D molecule representation';
 $string['SpectrumCanvas'] = 'Spectrum representation';
 $string['updateKetcherButton'] = 'Update the top representation';
 $string['privacy:metadata'] = 'The Chemical substance plugin does not store any personal data.';
-
+$string['molstructure:visible'] = 'tiny molstructure is visible';
