@@ -32,7 +32,12 @@ import {insertImage} from "./ketcher";
 import {initCanvas2D} from "./canvas2D";
 import {initCanvas3D} from "./canvas3D";
 import {initCanvasSpectrum} from "./canvasSpectrum";
-import {getSketcherDimensions, isReactionModeEnabled, isResizableSketcherEnabled} from './options';
+import {
+    getOutputImageConfiguration,
+    getSketcherDimensions,
+    isReactionModeEnabled,
+    isResizableSketcherEnabled,
+} from './options';
 /**
  * Handle action
  * @param {TinyMCE} editor
@@ -67,11 +72,15 @@ export const displayDialogue = async(editor) => {
 
     iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
         const sketcherDimensions = getSketcherDimensions(editor);
+        const outputImageConfiguration = getOutputImageConfiguration(editor);
         initCanvas2D(editor, iframeBody2D, {
             enableReactions: isReactionModeEnabled(editor),
             enableResizableSketcher: isResizableSketcherEnabled(editor),
             sketcherWidth: sketcherDimensions.width,
             sketcherHeight: sketcherDimensions.height,
+            enableCustomOutputSize: outputImageConfiguration.enabled,
+            sketcherViewerWidth: outputImageConfiguration.width,
+            sketcherViewerHeight: outputImageConfiguration.height,
         });
         // Due to firefox need to force tab selection
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').classList.add('active');

@@ -31,6 +31,7 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
   const {
     enableReactions = false,
     enableResizableSketcher = false,
+    enableCustomOutputSize = false,
     sketcherWidth = 400,
     sketcherHeight = 200,
     sketcherViewerWidth = 100,
@@ -63,6 +64,11 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
   sketcher_viewer.styles.bonds_clearOverlaps_2D = true;
   sketcher_viewer.emptyMessage = 'No data loaded';
   sketcher.oldFunc = sketcher.checksOnAction;
+
+  if (enableCustomOutputSize) {
+    iframeContent.querySelector(Selectors.elements.canvas2D.widthInput).value = sketcherViewerWidth;
+    iframeContent.querySelector(Selectors.elements.canvas2D.heightInput).value = sketcherViewerHeight;
+  }
 
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,

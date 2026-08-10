@@ -31,6 +31,9 @@ const enableResizableSketcherName = getPluginOptionName(pluginName, 'enableresiz
 const enableCustomSketcherSizeName = getPluginOptionName(pluginName, 'enablecustomsketchersize');
 const sketcherWidthName = getPluginOptionName(pluginName, 'sketcherwidth');
 const sketcherHeightName = getPluginOptionName(pluginName, 'sketcherheight');
+const enableCustomOutputSizeName = getPluginOptionName(pluginName, 'enablecustomoutputsize');
+const outputWidthName = getPluginOptionName(pluginName, 'outputwidth');
+const outputHeightName = getPluginOptionName(pluginName, 'outputheight');
 
 /**
  * Register the options for the Tiny Equation plugin.
@@ -68,6 +71,21 @@ export const register = (editor) => {
         processor: 'number',
         "default": 200,
     });
+
+    registerOption(enableCustomOutputSizeName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(outputWidthName, {
+        processor: 'number',
+        "default": 100,
+    });
+
+    registerOption(outputHeightName, {
+        processor: 'number',
+        "default": 100,
+    });
 };
 
 /**
@@ -103,4 +121,16 @@ export const isResizableSketcherEnabled = (editor) => editor.options.get(enableR
 export const getSketcherDimensions = (editor) => ({
     width: editor.options.get(sketcherWidthName),
     height: editor.options.get(sketcherHeightName),
+});
+
+/**
+ * Get the generated 2D image size configuration.
+ *
+ * @param {TinyMCE} editor
+ * @returns {{enabled: boolean, width: number, height: number}}
+ */
+export const getOutputImageConfiguration = (editor) => ({
+    enabled: editor.options.get(enableCustomOutputSizeName),
+    width: editor.options.get(outputWidthName),
+    height: editor.options.get(outputHeightName),
 });

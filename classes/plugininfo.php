@@ -84,6 +84,13 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         $sketcherheight = $enablecustomsketchersize
             ? self::get_dimension_setting('sketcherheight', 300)
             : 200;
+        $enablecustomoutputsize = (bool) get_config('tiny_molstructure', 'enablecustomoutputsize');
+        $outputwidth = $enablecustomoutputsize
+            ? self::get_dimension_setting('outputwidth', 400)
+            : 100;
+        $outputheight = $enablecustomoutputsize
+            ? self::get_dimension_setting('outputheight', 250)
+            : 100;
 
         if (isset($options['context'])) {
             $context = $options['context'];
@@ -97,6 +104,9 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
             'enablecustomsketchersize' => $enablecustomsketchersize,
             'sketcherwidth' => $sketcherwidth,
             'sketcherheight' => $sketcherheight,
+            'enablecustomoutputsize' => $enablecustomoutputsize,
+            'outputwidth' => $outputwidth,
+            'outputheight' => $outputheight,
         ];
     }
 

@@ -72,4 +72,31 @@ if ($hassiteconfig && $ADMIN->fulltree) {
     );
     $setting->set_validate_function($validatedimension);
     $settings->add($setting);
+
+    $settings->add(new admin_setting_configcheckbox(
+        'tiny_molstructure/enablecustomoutputsize',
+        get_string('enablecustomoutputsize', 'tiny_molstructure'),
+        get_string('enablecustomoutputsize_desc', 'tiny_molstructure'),
+        0,
+    ));
+
+    $setting = new admin_setting_configtext(
+        'tiny_molstructure/outputwidth',
+        get_string('outputwidth', 'tiny_molstructure'),
+        get_string('outputwidth_desc', 'tiny_molstructure'),
+        400,
+        PARAM_INT,
+    );
+    $setting->set_validate_function($validatedimension);
+    $settings->add($setting);
+
+    $setting = new admin_setting_configtext(
+        'tiny_molstructure/outputheight',
+        get_string('outputheight', 'tiny_molstructure'),
+        get_string('outputheight_desc', 'tiny_molstructure'),
+        250,
+        PARAM_INT,
+    );
+    $setting->set_validate_function($validatedimension);
+    $settings->add($setting);
 }

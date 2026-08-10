@@ -34,6 +34,49 @@ use context_system;
  */
 final class plugininfo_test extends \advanced_testcase {
     /**
+     * Legacy output image dimensions are retained by default.
+     */
+    public function test_custom_output_size_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablecustomoutputsize']);
+        $this->assertSame(100, $configuration['outputwidth']);
+        $this->assertSame(100, $configuration['outputheight']);
+    }
+
+    /**
+     * Stored output dimensions do not change behaviour while the feature is disabled.
+     */
+    public function test_custom_output_size_is_ignored_when_disabled(): void {
+        $this->resetAfterTest();
+        set_config('outputwidth', 450, 'tiny_molstructure');
+        set_config('outputheight', 275, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertSame(100, $configuration['outputwidth']);
+        $this->assertSame(100, $configuration['outputheight']);
+    }
+
+    /**
+     * Custom output dimensions are passed to Tiny editor instances when enabled.
+     */
+    public function test_custom_output_size_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomoutputsize', 1, 'tiny_molstructure');
+        set_config('outputwidth', 450, 'tiny_molstructure');
+        set_config('outputheight', 275, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablecustomoutputsize']);
+        $this->assertSame(450, $configuration['outputwidth']);
+        $this->assertSame(275, $configuration['outputheight']);
+    }
+
+    /**
      * Legacy drawing canvas dimensions are retained by default.
      */
     public function test_custom_sketcher_size_defaults_to_disabled(): void {
