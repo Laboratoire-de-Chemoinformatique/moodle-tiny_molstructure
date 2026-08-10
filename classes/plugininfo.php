@@ -33,7 +33,6 @@ use editor_tiny\plugin;
 use editor_tiny\plugin_with_buttons;
 use editor_tiny\plugin_with_configuration;
 use editor_tiny\plugin_with_menuitems;
-use filter_manager;
 
 /**
  * Tiny Molstructure plugin.
@@ -42,8 +41,7 @@ use filter_manager;
  * @copyright  Université de Strasbourg unistra.fr
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menuitems, plugin_with_configuration {
-
+class plugininfo extends plugin implements plugin_with_buttons, plugin_with_configuration, plugin_with_menuitems {
     /**
      * return available buttons
      * @return string[]
@@ -73,8 +71,12 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menu
      * @return array
      * @throws \dml_exception
      */
-    public static function get_plugin_configuration_for_context(context $context, array $options, array $fpoptions,
-        ?editor $editor = null): array {
+    public static function get_plugin_configuration_for_context(
+        context $context,
+        array $options,
+        array $fpoptions,
+        ?editor $editor = null
+    ): array {
         if (isset($options['context'])) {
             $context = $options['context'];
         } else {
@@ -84,14 +86,25 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menu
             'contextid' => $context->id,
         ];
     }
-    public static function is_enabled(context $context, array $options, array $fpoptions,
-                                      ?editor $editor = null): bool {
+    /**
+     * Whether the plugin is enabled for the editor context.
+     *
+     * @param context $context The context that the editor is used within
+     * @param array $options The options passed in when requesting the editor
+     * @param array $fpoptions The file picker options passed in when requesting the editor
+     * @param editor|null $editor The editor instance in which the plugin is initialised
+     * @return bool
+     */
+    public static function is_enabled(
+        context $context,
+        array $options,
+        array $fpoptions,
+        ?editor $editor = null
+    ): bool {
         // Disabled if:
         // - Not logged in or guest.
         // - Files are not allowed.
-        // - Only URL are supported.
         $canhavefiles = !empty($options['maxfiles']);
-        $canhaveexternalfiles = !empty($options['return_types']) && ($options['return_types'] & FILE_EXTERNAL);
-        return isloggedin() && !isguestuser() && $canhavefiles && $canhaveexternalfiles;
+        return isloggedin() && !isguestuser() && $canhavefiles;
     }
 }
