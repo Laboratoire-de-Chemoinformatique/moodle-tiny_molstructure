@@ -23,9 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-export default {
-    pluginName: 'tiny_molstructure/plugin',
-    component: 'tiny_molstructure',
-    buttonName: 'tiny_molstructure',
-    icon: 'tiny_molstructure',
-};
+export const pluginName = 'tiny_molstructure/plugin';
+export const component = 'tiny_molstructure';
+export const buttonName = 'tiny_molstructure';
+export const icon = 'tiny_molstructure';
