@@ -4,7 +4,9 @@ Feature: Tiny molstructure editor
 
   @javascript
   Scenario: Create an molecule using TinyMCE
-    Given I log in as "admin"
+    Given the following config values are set as admin:
+      | enablefitstructure | 1 | tiny_molstructure |
+    And I log in as "admin"
     When I open my profile in edit mode
     And I set the field "Description" to "<p>Chemical Structure test</p>"
     # Set field on the bottom of page, so equation editor dialogue is visible.
@@ -16,6 +18,8 @@ Feature: Tiny molstructure editor
     And "#sketcher-viewer-tiny" "css_element" should exist
     And "#label_height_input_molstructure" "css_element" should exist
     And "#button-size-button" "css_element" should exist
+    And "#fit_structure_container" "css_element" should be visible
+    And I click on "#fit_structure_input" "css_element"
     And I click on "#sketcher_button_ring_cyclohexane_icon" "css_element"
     And I click on "#sketcher" "css_element"
     And I switch to the main frame

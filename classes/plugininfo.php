@@ -111,6 +111,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
             'sketcherwidth' => $sketcherwidth,
             'sketcherheight' => $sketcherheight,
             'enablecustomoutputsize' => $enablecustomoutputsize,
+            'enablefitstructure' => (bool) get_config('tiny_molstructure', 'enablefitstructure'),
             'outputwidth' => $outputwidth,
             'outputheight' => $outputheight,
         ];

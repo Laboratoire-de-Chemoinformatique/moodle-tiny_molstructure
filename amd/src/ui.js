@@ -35,6 +35,7 @@ import {initCanvasSpectrum} from "./canvasSpectrum";
 import {
     getOutputImageConfiguration,
     getSketcherDimensions,
+    isFitStructureOptionEnabled,
     isReactionModeEnabled,
     isResizableSketcherEnabled,
 } from './options';
@@ -79,6 +80,7 @@ export const displayDialogue = async(editor) => {
             sketcherWidth: sketcherDimensions.width,
             sketcherHeight: sketcherDimensions.height,
             enableCustomOutputSize: outputImageConfiguration.enabled,
+            enableFitStructure: isFitStructureOptionEnabled(editor),
             sketcherViewerWidth: outputImageConfiguration.width,
             sketcherViewerHeight: outputImageConfiguration.height,
         });

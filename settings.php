@@ -71,6 +71,13 @@ if ($hassiteconfig && $ADMIN->fulltree) {
         0,
     ));
 
+    $settings->add(new admin_setting_configcheckbox(
+        'tiny_molstructure/enablefitstructure',
+        get_string('enablefitstructure', 'tiny_molstructure'),
+        get_string('enablefitstructure_desc', 'tiny_molstructure'),
+        0,
+    ));
+
     $setting = new \tiny_molstructure\admin_setting_dimension(
         'tiny_molstructure/outputwidth',
         get_string('outputwidth', 'tiny_molstructure'),

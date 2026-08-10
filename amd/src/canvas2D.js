@@ -32,6 +32,7 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
     enableReactions = false,
     enableResizableSketcher = false,
     enableCustomOutputSize = false,
+    enableFitStructure = false,
     sketcherWidth = 400,
     sketcherHeight = 200,
     sketcherViewerWidth = 100,
@@ -59,6 +60,7 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
   // Preview ketcher.
   const sketcher_viewer = new ChemDoodle.ViewerCanvas(
     Selectors.elements.canvas2D.ketcherviewId, sketcherViewerWidth, sketcherViewerHeight);
+  const contentInterpreter = new ChemDoodle.io.JSONInterpreter();
   sketcher_viewer.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher_viewer.styles.atoms_useJMOLColors = true;
   sketcher_viewer.styles.bonds_clearOverlaps_2D = true;
@@ -70,6 +72,14 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
     iframeContent.querySelector(Selectors.elements.canvas2D.heightInput).value = sketcherViewerHeight;
   }
 
+  const fitStructureInput = iframeContent.querySelector(Selectors.elements.canvas2D.fitStructureInput);
+  if (enableFitStructure) {
+    iframeContent.querySelector(Selectors.elements.canvas2D.fitStructureContainer).hidden = false;
+    fitStructureInput.addEventListener('change', () => {
+      updateViewerScale(sketcher_viewer, fitStructureInput.checked);
+    });
+  }
+
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
          updated at every modification of the main ketcher. */
@@ -77,7 +87,9 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
     this.oldFunc(force);
     let mols = sketcher.molecules;
     let forms = sketcher.shapes;
-    sketcher_viewer.loadContent(mols, forms);
+    const previewContent = contentInterpreter.contentFrom(contentInterpreter.contentTo(mols, forms));
+    sketcher_viewer.loadContent(previewContent.molecules, previewContent.shapes);
+    updateViewerScale(sketcher_viewer, enableFitStructure && fitStructureInput.checked);
     sketcher.center();
     for ( let i = 0, ii = this.molecules.length; i < ii; i++) {
       this.molecules[i].check();
@@ -111,6 +123,34 @@ export const function_resize= (e) => {
     height = 100;
   }
   sketcher_viewer.resize(width, height);
+  const fitStructureContainer = iframeContent.querySelector(Selectors.elements.canvas2D.fitStructureContainer);
+  const fitStructureInput = iframeContent.querySelector(Selectors.elements.canvas2D.fitStructureInput);
+  updateViewerScale(sketcher_viewer, !fitStructureContainer.hidden && fitStructureInput.checked);
+};
+
+/**
+ * Scale preview content to fit the output canvas when requested.
+ *
+ * @param {Object} viewer ChemDoodle viewer canvas
+ * @param {boolean} fit Whether enlargement is enabled
+ */
+export const updateViewerScale = (viewer, fit) => {
+  const bounds = viewer.getContentBounds();
+  const width = bounds.maxX - bounds.minX;
+  const height = bounds.maxY - bounds.minY;
+  const availableScales = [];
+
+  if (width > 0) {
+    availableScales.push(viewer.width / width);
+  }
+  if (height > 0) {
+    availableScales.push(viewer.height / height);
+  }
+
+  const fitScale = availableScales.length > 0 ? Math.min(...availableScales) * 0.85 : 1;
+  const defaultScale = width > viewer.width - 20 || height > viewer.height - 20 ? fitScale : 1;
+  viewer.styles.scale = fit ? Math.min(fitScale, 3) : defaultScale;
+  viewer.repaint();
 };
 
 export const changeLangString = async(iframeContent) => {
@@ -122,4 +162,7 @@ export const changeLangString = async(iframeContent) => {
 
   var width_input = iframeContent.querySelector(Selectors.elements.canvas2D.widthInputLabel);
   width_input.firstChild.data = await getString('width', component);
+
+  const fitStructureLabel = iframeContent.querySelector(Selectors.elements.canvas2D.fitStructureLabel);
+  fitStructureLabel.textContent = await getString('fitstructure', component);
 };

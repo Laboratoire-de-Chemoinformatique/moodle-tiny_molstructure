@@ -32,6 +32,7 @@ const enableCustomSketcherSizeName = getPluginOptionName(pluginName, 'enablecust
 const sketcherWidthName = getPluginOptionName(pluginName, 'sketcherwidth');
 const sketcherHeightName = getPluginOptionName(pluginName, 'sketcherheight');
 const enableCustomOutputSizeName = getPluginOptionName(pluginName, 'enablecustomoutputsize');
+const enableFitStructureName = getPluginOptionName(pluginName, 'enablefitstructure');
 const outputWidthName = getPluginOptionName(pluginName, 'outputwidth');
 const outputHeightName = getPluginOptionName(pluginName, 'outputheight');
 
@@ -73,6 +74,11 @@ export const register = (editor) => {
     });
 
     registerOption(enableCustomOutputSizeName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(enableFitStructureName, {
         processor: 'boolean',
         "default": false,
     });
@@ -134,3 +140,11 @@ export const getOutputImageConfiguration = (editor) => ({
     width: editor.options.get(outputWidthName),
     height: editor.options.get(outputHeightName),
 });
+
+/**
+ * Whether authors can fit a structure to its output image.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isFitStructureOptionEnabled = (editor) => editor.options.get(enableFitStructureName);

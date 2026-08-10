@@ -36,7 +36,7 @@ export const insertImage = async(iframeBody, editor, ketcherviewId) => {
   if (ketcherviewId === Selectors.elements.canvasSpectrum.ketcherviewId) {
     imgDataURL = ketcherViewer.src;
   } else {
-    imgDataURL = ketcherViewer.toDataURL('image/svg');
+    imgDataURL = ketcherViewer.toDataURL('image/png');
   }
   const itemId = getDraftItemId(editor);
   const fileReturn = await createAnUploadImageFile(itemId, imgDataURL, getContextId(editor));
@@ -62,4 +62,3 @@ export const createAnUploadImageFile = async (itemId, imageDataUrl, contextId) =
   });
   return generatedImageResult;
 };
-

@@ -34,6 +34,29 @@ use context_system;
  */
 final class plugininfo_test extends \advanced_testcase {
     /**
+     * The per-image fit option is unavailable by default.
+     */
+    public function test_fit_structure_option_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablefitstructure']);
+    }
+
+    /**
+     * Administrators can make the per-image fit option available.
+     */
+    public function test_fit_structure_option_can_be_enabled(): void {
+        $this->resetAfterTest();
+        set_config('enablefitstructure', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablefitstructure']);
+    }
+
+    /**
      * Legacy output image dimensions are retained by default.
      */
     public function test_custom_output_size_defaults_to_disabled(): void {
