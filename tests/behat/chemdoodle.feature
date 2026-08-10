@@ -5,7 +5,13 @@ Feature: Tiny molstructure editor
   @javascript
   Scenario: Create an molecule using TinyMCE
     Given the following config values are set as admin:
-      | enablefitstructure | 1 | tiny_molstructure |
+      | enablefitstructure        | 1   | tiny_molstructure |
+      | enablecustomsketchersize | 1   | tiny_molstructure |
+      | sketcherwidth             | 500 | tiny_molstructure |
+      | sketcherheight            | 300 | tiny_molstructure |
+      | enablecustomoutputsize    | 1   | tiny_molstructure |
+      | outputwidth               | 400 | tiny_molstructure |
+      | outputheight              | 250 | tiny_molstructure |
     And I log in as "admin"
     When I open my profile in edit mode
     And I set the field "Description" to "<p>Chemical Structure test</p>"
@@ -20,6 +26,15 @@ Feature: Tiny molstructure editor
     And "#button-size-button" "css_element" should exist
     And "#fit_structure_container" "css_element" should be visible
     And I click on "#fit_structure_input" "css_element"
+    And I switch to the main frame
+    And I click on "3D molecule representation" "link"
+    And I switch to "id_description_editor_molstructure_3D_iframe" iframe
+    And "#sketcher3D[style*='width: 500px']" "css_element" should exist
+    And the field "width_input_molstructure-3D" matches value "400"
+    And the field "height_input_molstructure-3D" matches value "250"
+    And I switch to the main frame
+    And I click on "2D molecule representation" "link"
+    And I switch to "id_description_editor_molstructure_2D_iframe" iframe
     And I click on "#sketcher_button_ring_cyclohexane_icon" "css_element"
     And I click on "#sketcher" "css_element"
     And I switch to the main frame

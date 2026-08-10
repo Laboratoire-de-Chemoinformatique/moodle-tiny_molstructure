@@ -27,12 +27,14 @@ import Selectors from 'tiny_molstructure/selectors';
 import {get_string as getString} from 'core/str';
 import {component} from 'tiny_molstructure/common';
 
-export const initCanvas3D = async(editor,
-                                  iframeBody,
-                                  sketcherWidth=400,
-                                  sketcherHeight=200,
-                                  sketcherViewerWidth=100,
-                                  sketcherViewerHeight=100) => {
+export const initCanvas3D = async(editor, iframeBody, configuration = {}) => {
+  const {
+    enableCustomOutputSize = false,
+    sketcherWidth = 400,
+    sketcherHeight = 200,
+    sketcherViewerWidth = 100,
+    sketcherViewerHeight = 100,
+  } = configuration;
 
   const iframeContent = iframeBody.contentDocument;
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
@@ -63,6 +65,11 @@ export const initCanvas3D = async(editor,
   sketcher_viewer_3D.styles.atoms_useJMOLColors= true;
   sketcher3D.emptyMessage="Please insert a molecule in the editor area above.";
   sketcher3D.oldFunc = sketcher3D.checksOnAction;
+
+  if (enableCustomOutputSize) {
+    iframeContent.querySelector(Selectors.elements.canvas3D.widthInput).value = sketcherViewerWidth;
+    iframeContent.querySelector(Selectors.elements.canvas3D.heightInput).value = sketcherViewerHeight;
+  }
 
   /*   Refactor the function, in order for the preview ketcher to be a copy of the main ketcher,
          updated at every modification of the main ketcher. */

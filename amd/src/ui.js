@@ -92,7 +92,15 @@ export const displayDialogue = async(editor) => {
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('show');
     });
     iframeBody3D.onload = async() => {
-        await initCanvas3D(editor, iframeBody3D);
+        const sketcherDimensions = getSketcherDimensions(editor);
+        const outputImageConfiguration = getOutputImageConfiguration(editor);
+        await initCanvas3D(editor, iframeBody3D, {
+            sketcherWidth: sketcherDimensions.width,
+            sketcherHeight: sketcherDimensions.height,
+            enableCustomOutputSize: outputImageConfiguration.enabled,
+            sketcherViewerWidth: outputImageConfiguration.width,
+            sketcherViewerHeight: outputImageConfiguration.height,
+        });
         fitIframeToContent(iframeBody3D);
     };
     iframeBodySpectrum.onload = async() => {
