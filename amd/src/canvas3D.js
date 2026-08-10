@@ -76,8 +76,6 @@ export const initCanvas3D = async(editor,
 
   iframeContent.querySelector(Selectors.elements.canvas3D.resizeButton)
       .addEventListener('click', (e) => function_resize(e, sketcher_viewer_3D), iframeBody);
-  // Need this for firefow ESR < 120 since has is not present by default
-  window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
   await changeLangString(iframeContent);
 };
 

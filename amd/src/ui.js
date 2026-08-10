@@ -70,10 +70,10 @@ export const displayDialogue = async(editor) => {
     const iframeBody3D = editorRoot.querySelector(Selectors.elements.canvas3D.selector);
     const iframeBodySpectrum = editorRoot.querySelector(Selectors.elements.canvasSpectrum.selector);
 
-    iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
+    iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', async function(){
         const sketcherDimensions = getSketcherDimensions(editor);
         const outputImageConfiguration = getOutputImageConfiguration(editor);
-        initCanvas2D(editor, iframeBody2D, {
+        await initCanvas2D(editor, iframeBody2D, {
             enableReactions: isReactionModeEnabled(editor),
             enableResizableSketcher: isResizableSketcherEnabled(editor),
             sketcherWidth: sketcherDimensions.width,
@@ -82,17 +82,20 @@ export const displayDialogue = async(editor) => {
             sketcherViewerWidth: outputImageConfiguration.width,
             sketcherViewerHeight: outputImageConfiguration.height,
         });
+        fitIframeToContent(iframeBody2D);
         // Due to firefox need to force tab selection
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').classList.add('active');
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').setAttribute('aria-selected','true');
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('active');
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('show');
     });
-    iframeBody3D.onload = ()=> {
-        initCanvas3D(editor, iframeBody3D);
+    iframeBody3D.onload = async() => {
+        await initCanvas3D(editor, iframeBody3D);
+        fitIframeToContent(iframeBody3D);
     };
-    iframeBodySpectrum.onload = ()=> {
-        initCanvasSpectrum(editor, iframeBodySpectrum);
+    iframeBodySpectrum.onload = async() => {
+        await initCanvasSpectrum(editor, iframeBodySpectrum);
+        fitIframeToContent(iframeBodySpectrum);
     };
     const tabs = editorRoot.querySelectorAll(Selectors.elements.tabsSelectors);
     tabs.forEach(
@@ -116,6 +119,30 @@ export const displayDialogue = async(editor) => {
         insertImageForActiveTab(editor);
         modalPromises.destroy();
     });
+};
+
+/**
+ * Keep an embedded canvas iframe fitted to its content.
+ *
+ * @param {HTMLIFrameElement} iframe The canvas iframe
+ */
+const fitIframeToContent = (iframe) => {
+    const iframeDocument = iframe.contentDocument;
+    const wrapper = iframeDocument.querySelector('.tiny_molstructure_wrapper');
+    if (!wrapper) {
+        return;
+    }
+
+    const resize = () => {
+        const bodyStyle = iframe.contentWindow.getComputedStyle(iframeDocument.body);
+        const marginBottom = parseFloat(bodyStyle.marginBottom) || 0;
+        iframe.style.height = `${Math.ceil(wrapper.offsetTop + wrapper.scrollHeight + marginBottom)}px`;
+    };
+
+    resize();
+    const resizeObserver = new iframe.contentWindow.ResizeObserver(resize);
+    resizeObserver.observe(wrapper);
+    iframe.molstructureResizeObserver = resizeObserver;
 };
 
 const insertImageForActiveTab = (editor) => {

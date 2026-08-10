@@ -58,8 +58,6 @@ export const initCanvasSpectrum = async(editor,
     iframeContent.querySelector(Selectors.elements.canvasSpectrum.updateKetcherButton)
         .addEventListener('click', (e) => function_update_ketcher(e, ChemDoodle, sketcherSpectrum), iframeBody);
 
-    // Need this for firefow ESR < 120 since has is not present by default
-    window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
     await changeLangString(iframeContent);
 };
 

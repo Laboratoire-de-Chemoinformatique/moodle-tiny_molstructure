@@ -86,8 +86,6 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
 
   iframeBody.contentWindow.sketcherViewerVar = sketcher_viewer;
   iframeContent.querySelector(Selectors.elements.canvas2D.resizeButton).addEventListener('click', function_resize, iframeBody);
-  // Need this for firefow ESR < 120 since has is not present by default
-  window.document.querySelector('.modal-content').setAttribute('style', ' height:100vh;');
   await changeLangString(iframeContent);
 };
 
