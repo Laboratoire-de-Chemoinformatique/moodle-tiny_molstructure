@@ -23,3 +23,31 @@ Feature: Tiny molstructure editor
     And I click on ".modal-footer button" "css_element" in the "Draw a molecule, resize the canvas and click on insert." "dialogue"
     And I switch to "id_description_editor_ifr" iframe
     And "#tinymce img[alt^=ChemDoodle]" "css_element" should exist
+
+  Scenario: Open Tiny molstructure in a file-enabled essay question attempt
+    Given the following "users" exist:
+      | username | firstname | lastname | email               |
+      | student  | Student   | One      | student@example.com |
+    And the following "courses" exist:
+      | fullname | shortname | category |
+      | Course 1 | C1        | 0        |
+    And the following "course enrolments" exist:
+      | user    | course | role    |
+      | student | C1     | student |
+    And the following "question categories" exist:
+      | contextlevel | reference | name           |
+      | Course       | C1        | Test questions |
+    And the following "questions" exist:
+      | questioncategory | qtype | name  | template         |
+      | Test questions   | essay | Essay | editorfilepicker |
+    And the following "activities" exist:
+      | activity | name   | course | idnumber |
+      | quiz     | Quiz 1 | C1     | quiz1    |
+    And quiz "Quiz 1" contains the following questions:
+      | question | page |
+      | Essay    | 1    |
+    When I am on the "Quiz 1" "mod_quiz > View" page logged in as "student"
+    And I press "Attempt quiz"
+    And I expand all toolbars for the "Answer" TinyMCE editor
+    And I click on the "Chemical substance" button for the "Answer" TinyMCE editor
+    Then ".molstructure_2D_iframe" "css_element" should exist
