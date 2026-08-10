@@ -42,6 +42,12 @@ use editor_tiny\plugin_with_menuitems;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plugininfo extends plugin implements plugin_with_buttons, plugin_with_configuration, plugin_with_menuitems {
+    /** Minimum supported configurable dimension. */
+    public const MIN_DIMENSION = 50;
+
+    /** Maximum supported configurable dimension. */
+    public const MAX_DIMENSION = 1000;
+
     /**
      * return available buttons
      * @return string[]
@@ -119,9 +125,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
      */
     private static function get_dimension_setting(string $name, int $default): int {
         $value = (int) get_config('tiny_molstructure', $name);
-        return $value >= admin_setting_dimension::MIN_VALUE && $value <= admin_setting_dimension::MAX_VALUE
-            ? $value
-            : $default;
+        return $value >= self::MIN_DIMENSION && $value <= self::MAX_DIMENSION ? $value : $default;
     }
 
     /**

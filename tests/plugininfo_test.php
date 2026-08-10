@@ -77,6 +77,21 @@ final class plugininfo_test extends \advanced_testcase {
     }
 
     /**
+     * Invalid output dimensions fall back to the configured feature defaults.
+     */
+    public function test_invalid_custom_output_size_uses_defaults(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomoutputsize', 1, 'tiny_molstructure');
+        set_config('outputwidth', 49, 'tiny_molstructure');
+        set_config('outputheight', 1001, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertSame(400, $configuration['outputwidth']);
+        $this->assertSame(250, $configuration['outputheight']);
+    }
+
+    /**
      * Legacy drawing canvas dimensions are retained by default.
      */
     public function test_custom_sketcher_size_defaults_to_disabled(): void {

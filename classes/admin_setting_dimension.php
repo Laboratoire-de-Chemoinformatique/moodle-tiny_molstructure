@@ -28,12 +28,6 @@ namespace tiny_molstructure;
  * Integer setting constrained to the dimensions supported by the plugin UI.
  */
 class admin_setting_dimension extends \admin_setting_configtext {
-    /** Minimum supported dimension. */
-    public const MIN_VALUE = 50;
-
-    /** Maximum supported dimension. */
-    public const MAX_VALUE = 1000;
-
     /**
      * Validate a dimension before storage.
      *
@@ -47,10 +41,10 @@ class admin_setting_dimension extends \admin_setting_configtext {
         }
 
         $value = (int) $data;
-        if ($value < self::MIN_VALUE || $value > self::MAX_VALUE) {
+        if ($value < plugininfo::MIN_DIMENSION || $value > plugininfo::MAX_DIMENSION) {
             return get_string('dimensionsmustbebetween', 'tiny_molstructure', [
-                'min' => self::MIN_VALUE,
-                'max' => self::MAX_VALUE,
+                'min' => plugininfo::MIN_DIMENSION,
+                'max' => plugininfo::MAX_DIMENSION,
             ]);
         }
 
