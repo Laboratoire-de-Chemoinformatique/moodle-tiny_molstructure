@@ -26,6 +26,7 @@
 import {getPluginOptionName} from 'editor_tiny/options';
 import {pluginName} from 'tiny_molstructure/common';
 const contextIdName = getPluginOptionName(pluginName, 'contextid');
+const enableCustomAltTextName = getPluginOptionName(pluginName, 'enablecustomalttext');
 const enableReactionsName = getPluginOptionName(pluginName, 'enablereactions');
 const enableResizableSketcherName = getPluginOptionName(pluginName, 'enableresizablesketcher');
 const enableCustomSketcherSizeName = getPluginOptionName(pluginName, 'enablecustomsketchersize');
@@ -46,6 +47,11 @@ export const register = (editor) => {
     registerOption(contextIdName, {
         processor: 'number',
         "default": 0,
+    });
+
+    registerOption(enableCustomAltTextName, {
+        processor: 'boolean',
+        "default": false,
     });
 
     registerOption(enableReactionsName, {
@@ -101,6 +107,14 @@ export const register = (editor) => {
  * @returns {number}
  */
 export const getContextId = (editor) => editor.options.get(contextIdName);
+
+/**
+ * Whether authors can customise generated image alternative text.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isCustomAltTextEnabled = (editor) => editor.options.get(enableCustomAltTextName);
 
 /**
  * Whether reaction drawing is enabled.

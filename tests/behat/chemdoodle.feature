@@ -6,6 +6,7 @@ Feature: Tiny molstructure editor
   Scenario: Create an molecule using TinyMCE
     Given the following config values are set as admin:
       | enablefitstructure        | 1   | tiny_molstructure |
+      | enablecustomalttext       | 1   | tiny_molstructure |
       | enablecustomsketchersize | 1   | tiny_molstructure |
       | sketcherwidth             | 500 | tiny_molstructure |
       | sketcherheight            | 300 | tiny_molstructure |
@@ -26,6 +27,8 @@ Feature: Tiny molstructure editor
     And "#button-size-button" "css_element" should exist
     And "#fit_structure_container" "css_element" should be visible
     And I click on "#fit_structure_input" "css_element"
+    And ".molstructure-alt-text" "css_element" should be visible
+    And I set the field "molstructure-alt-text-input" to "Cyclohexane structure"
     And I switch to the main frame
     And I click on "3D molecule representation" "link"
     And I switch to "id_description_editor_molstructure_3D_iframe" iframe
@@ -41,7 +44,7 @@ Feature: Tiny molstructure editor
     # Click doesn't work so pass by css element.
     And I click on ".modal-footer button" "css_element" in the "Draw a molecule, resize the canvas and click on insert." "dialogue"
     And I switch to "id_description_editor_ifr" iframe
-    And "#tinymce img[alt^=ChemDoodle]" "css_element" should exist
+    And "#tinymce img[alt='Cyclohexane structure']" "css_element" should exist
 
   Scenario: Open Tiny molstructure in a file-enabled essay question attempt
     Given the following "users" exist:

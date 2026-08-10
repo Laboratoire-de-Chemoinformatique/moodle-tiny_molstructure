@@ -24,6 +24,14 @@
     padding: 1px;
 }
 
+.molstructure-alt-text:not([hidden]) {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
 
 .inputs_size_Spectrum {
     display: grid;

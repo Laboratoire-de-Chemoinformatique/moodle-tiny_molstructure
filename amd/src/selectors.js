@@ -30,6 +30,11 @@ export default {
     elements: {
         form: 'form',
         tabsSelectors: 'ul[id^=molstructure-navbar] a[data-toggle="tab"]',
+        altText: {
+            container: '.molstructure-alt-text',
+            input: '.molstructure-alt-text-input',
+            label: '.molstructure-alt-text-label'
+        },
         canvas2D: {
             tabSelector: 'ul[id^=molstructure-navbar] a[data-toggle="tab"][id^=molstructure-tab-2D]',
             selector: '.molstructure_2D_iframe',

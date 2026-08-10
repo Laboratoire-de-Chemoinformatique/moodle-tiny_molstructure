@@ -26,8 +26,10 @@
 import MolstructureModal from 'tiny_molstructure/modal';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
+import {component} from 'tiny_molstructure/common';
 import Selectors from 'tiny_molstructure/selectors';
 import * as Config from 'core/config';
+import {get_string as getString} from 'core/str';
 import {insertImage} from "./ketcher";
 import {initCanvas2D} from "./canvas2D";
 import {initCanvas3D} from "./canvas3D";
@@ -35,6 +37,7 @@ import {initCanvasSpectrum} from "./canvasSpectrum";
 import {
     getOutputImageConfiguration,
     getSketcherDimensions,
+    isCustomAltTextEnabled,
     isFitStructureOptionEnabled,
     isReactionModeEnabled,
     isResizableSketcherEnabled,
@@ -84,6 +87,7 @@ export const displayDialogue = async(editor) => {
             sketcherViewerWidth: outputImageConfiguration.width,
             sketcherViewerHeight: outputImageConfiguration.height,
         });
+        await initAltTextField(iframeBody2D, isCustomAltTextEnabled(editor));
         fitIframeToContent(iframeBody2D);
         // Due to firefox need to force tab selection
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').classList.add('active');
@@ -101,10 +105,12 @@ export const displayDialogue = async(editor) => {
             sketcherViewerWidth: outputImageConfiguration.width,
             sketcherViewerHeight: outputImageConfiguration.height,
         });
+        await initAltTextField(iframeBody3D, isCustomAltTextEnabled(editor));
         fitIframeToContent(iframeBody3D);
     };
     iframeBodySpectrum.onload = async() => {
         await initCanvasSpectrum(editor, iframeBodySpectrum);
+        await initAltTextField(iframeBodySpectrum, isCustomAltTextEnabled(editor));
         fitIframeToContent(iframeBodySpectrum);
     };
     const tabs = editorRoot.querySelectorAll(Selectors.elements.tabsSelectors);
@@ -129,6 +135,20 @@ export const displayDialogue = async(editor) => {
         insertImageForActiveTab(editor);
         modalPromises.destroy();
     });
+};
+
+/**
+ * Initialise the optional alternative-text field in a canvas iframe.
+ *
+ * @param {HTMLIFrameElement} iframe The canvas iframe
+ * @param {boolean} enabled Whether the author control is available
+ */
+const initAltTextField = async(iframe, enabled) => {
+    const iframeDocument = iframe.contentDocument;
+    const input = iframeDocument.querySelector(Selectors.elements.altText.input);
+    input.value = await getString('defaultalttext', component);
+    iframeDocument.querySelector(Selectors.elements.altText.label).textContent = await getString('alttext', component);
+    iframeDocument.querySelector(Selectors.elements.altText.container).hidden = !enabled;
 };
 
 /**

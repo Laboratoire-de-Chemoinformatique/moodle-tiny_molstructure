@@ -14,8 +14,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 import notification from "core/notification";
 import Ajax from 'core/ajax';
+import {get_string as getString} from 'core/str';
 import {getDraftItemId} from 'editor_tiny/options';
 import {getContextId} from "./options";
+import {component} from 'tiny_molstructure/common';
 import Selectors from 'tiny_molstructure/selectors';
 
 /**
@@ -29,7 +31,6 @@ import Selectors from 'tiny_molstructure/selectors';
 
 
 export const insertImage = async(iframeBody, editor, ketcherviewId) => {
-  let divContent = '';
   // Getting the viewer canvas.
   let ketcherViewer = iframeBody.contentDocument.querySelector('#'+ketcherviewId);
   let imgDataURL;
@@ -38,11 +39,15 @@ export const insertImage = async(iframeBody, editor, ketcherviewId) => {
   } else {
     imgDataURL = ketcherViewer.toDataURL('image/png');
   }
+  const altTextInput = iframeBody.contentDocument.querySelector(Selectors.elements.altText.input);
+  const suppliedAltText = altTextInput.value.trim();
+  const altText = suppliedAltText || await getString('defaultalttext', component);
   const itemId = getDraftItemId(editor);
   const fileReturn = await createAnUploadImageFile(itemId, imgDataURL, getContextId(editor));
-  // To retrieve image.
-  divContent = "<img src=\"" + fileReturn.fileUrl + "\" alt=\"ChemDoodle PNG\"/>";
-  editor.insertContent(divContent);
+  const image = editor.getDoc().createElement('img');
+  image.src = fileReturn.fileUrl;
+  image.alt = altText;
+  editor.insertContent(image.outerHTML);
 };
 
 export const createAnUploadImageFile = async (itemId, imageDataUrl, contextId) => {

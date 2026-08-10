@@ -26,6 +26,13 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig && $ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox(
+        'tiny_molstructure/enablecustomalttext',
+        get_string('enablecustomalttext', 'tiny_molstructure'),
+        get_string('enablecustomalttext_desc', 'tiny_molstructure'),
+        0,
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
         'tiny_molstructure/enablereactions',
         get_string('enablereactions', 'tiny_molstructure'),
         get_string('enablereactions_desc', 'tiny_molstructure'),

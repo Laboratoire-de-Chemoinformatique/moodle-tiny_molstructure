@@ -34,6 +34,29 @@ use context_system;
  */
 final class plugininfo_test extends \advanced_testcase {
     /**
+     * The custom image-description field is unavailable by default.
+     */
+    public function test_custom_alt_text_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablecustomalttext']);
+    }
+
+    /**
+     * Administrators can make the image-description field available.
+     */
+    public function test_custom_alt_text_can_be_enabled(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomalttext', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablecustomalttext']);
+    }
+
+    /**
      * The per-image fit option is unavailable by default.
      */
     public function test_fit_structure_option_defaults_to_disabled(): void {
