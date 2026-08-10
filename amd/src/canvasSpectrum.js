@@ -63,7 +63,7 @@ export const initCanvasSpectrum = async(editor,
 
 // Displays the view to the user.
 export const  function_displaySVG= (iframeContent) => {
-    const imgDataURL =  iframeContent.querySelector('#sketcherSpectrum').toDataURL('image/svg+xml');
+    const imgDataURL =  iframeContent.querySelector('#sketcherSpectrum').toDataURL('image/png');
 
     const imgElement = iframeContent.createElement('img');
     imgElement.src = imgDataURL;
