@@ -33,7 +33,6 @@ use editor_tiny\plugin;
 use editor_tiny\plugin_with_buttons;
 use editor_tiny\plugin_with_configuration;
 use editor_tiny\plugin_with_menuitems;
-use filter_manager;
 
 /**
  * Tiny Molstructure plugin.
@@ -42,7 +41,12 @@ use filter_manager;
  * @copyright  Université de Strasbourg unistra.fr
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menuitems, plugin_with_configuration {
+class plugininfo extends plugin implements plugin_with_buttons, plugin_with_configuration, plugin_with_menuitems {
+    /** Minimum supported configurable dimension. */
+    public const MIN_DIMENSION = 50;
+
+    /** Maximum supported configurable dimension. */
+    public const MAX_DIMENSION = 1000;
 
     /**
      * return available buttons
@@ -73,8 +77,27 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menu
      * @return array
      * @throws \dml_exception
      */
-    public static function get_plugin_configuration_for_context(context $context, array $options, array $fpoptions,
-        ?editor $editor = null): array {
+    public static function get_plugin_configuration_for_context(
+        context $context,
+        array $options,
+        array $fpoptions,
+        ?editor $editor = null
+    ): array {
+        $enablecustomsketchersize = (bool) get_config('tiny_molstructure', 'enablecustomsketchersize');
+        $sketcherwidth = $enablecustomsketchersize
+            ? self::get_dimension_setting('sketcherwidth', 500)
+            : 400;
+        $sketcherheight = $enablecustomsketchersize
+            ? self::get_dimension_setting('sketcherheight', 300)
+            : 200;
+        $enablecustomoutputsize = (bool) get_config('tiny_molstructure', 'enablecustomoutputsize');
+        $outputwidth = $enablecustomoutputsize
+            ? self::get_dimension_setting('outputwidth', 400)
+            : 100;
+        $outputheight = $enablecustomoutputsize
+            ? self::get_dimension_setting('outputheight', 250)
+            : 100;
+
         if (isset($options['context'])) {
             $context = $options['context'];
         } else {
@@ -82,16 +105,50 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_menu
         }
         return [
             'contextid' => $context->id,
+            'enablecustomalttext' => (bool) get_config('tiny_molstructure', 'enablecustomalttext'),
+            'enablereactions' => (bool) get_config('tiny_molstructure', 'enablereactions'),
+            'enableresizablesketcher' => (bool) get_config('tiny_molstructure', 'enableresizablesketcher'),
+            'enablecustomsketchersize' => $enablecustomsketchersize,
+            'sketcherwidth' => $sketcherwidth,
+            'sketcherheight' => $sketcherheight,
+            'enablecustomoutputsize' => $enablecustomoutputsize,
+            'enablefitstructure' => (bool) get_config('tiny_molstructure', 'enablefitstructure'),
+            'outputwidth' => $outputwidth,
+            'outputheight' => $outputheight,
         ];
     }
-    public static function is_enabled(context $context, array $options, array $fpoptions,
-                                      ?editor $editor = null): bool {
+
+    /**
+     * Get a validated dimension setting.
+     *
+     * @param string $name Setting name
+     * @param int $default Default value when the setting is absent or invalid
+     * @return int
+     */
+    private static function get_dimension_setting(string $name, int $default): int {
+        $value = (int) get_config('tiny_molstructure', $name);
+        return $value >= self::MIN_DIMENSION && $value <= self::MAX_DIMENSION ? $value : $default;
+    }
+
+    /**
+     * Whether the plugin is enabled for the editor context.
+     *
+     * @param context $context The context that the editor is used within
+     * @param array $options The options passed in when requesting the editor
+     * @param array $fpoptions The file picker options passed in when requesting the editor
+     * @param editor|null $editor The editor instance in which the plugin is initialised
+     * @return bool
+     */
+    public static function is_enabled(
+        context $context,
+        array $options,
+        array $fpoptions,
+        ?editor $editor = null
+    ): bool {
         // Disabled if:
         // - Not logged in or guest.
         // - Files are not allowed.
-        // - Only URL are supported.
         $canhavefiles = !empty($options['maxfiles']);
-        $canhaveexternalfiles = !empty($options['return_types']) && ($options['return_types'] & FILE_EXTERNAL);
-        return isloggedin() && !isguestuser() && $canhavefiles && $canhaveexternalfiles;
+        return isloggedin() && !isguestuser() && $canhavefiles;
     }
 }

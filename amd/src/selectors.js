@@ -30,6 +30,11 @@ export default {
     elements: {
         form: 'form',
         tabsSelectors: 'ul[id^=molstructure-navbar] a[data-toggle="tab"]',
+        altText: {
+            container: '.molstructure-alt-text',
+            input: '.molstructure-alt-text-input',
+            label: '.molstructure-alt-text-label'
+        },
         canvas2D: {
             tabSelector: 'ul[id^=molstructure-navbar] a[data-toggle="tab"][id^=molstructure-tab-2D]',
             selector: '.molstructure_2D_iframe',
@@ -38,7 +43,10 @@ export default {
             widthInputLabel: '#label_width_input_molstructure',
             heightInput: '#height_input_molstructure',
             widthInput: '#width_input_molstructure',
-            resizeButton: '#button-size-button'
+            resizeButton: '#button-size-button',
+            fitStructureContainer: '#fit_structure_container',
+            fitStructureInput: '#fit_structure_input',
+            fitStructureLabel: '#fit_structure_label'
 
         },
         canvas3D: {

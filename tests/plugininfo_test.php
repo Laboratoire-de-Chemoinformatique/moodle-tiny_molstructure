@@ -1,0 +1,284 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
+/**
+ * Tiny Molstructure plugin info tests.
+ *
+ * @package    tiny_molstructure
+ * @category   test
+ * @copyright  2026 University of New England
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace tiny_molstructure;
+
+use context_system;
+
+/**
+ * Tests for Tiny Molstructure plugin info.
+ *
+ * @covers \tiny_molstructure\plugininfo
+ */
+final class plugininfo_test extends \advanced_testcase {
+    /**
+     * The custom image-description field is unavailable by default.
+     */
+    public function test_custom_alt_text_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablecustomalttext']);
+    }
+
+    /**
+     * Administrators can make the image-description field available.
+     */
+    public function test_custom_alt_text_can_be_enabled(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomalttext', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablecustomalttext']);
+    }
+
+    /**
+     * The per-image fit option is unavailable by default.
+     */
+    public function test_fit_structure_option_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablefitstructure']);
+    }
+
+    /**
+     * Administrators can make the per-image fit option available.
+     */
+    public function test_fit_structure_option_can_be_enabled(): void {
+        $this->resetAfterTest();
+        set_config('enablefitstructure', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablefitstructure']);
+    }
+
+    /**
+     * Legacy output image dimensions are retained by default.
+     */
+    public function test_custom_output_size_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablecustomoutputsize']);
+        $this->assertSame(100, $configuration['outputwidth']);
+        $this->assertSame(100, $configuration['outputheight']);
+    }
+
+    /**
+     * Stored output dimensions do not change behaviour while the feature is disabled.
+     */
+    public function test_custom_output_size_is_ignored_when_disabled(): void {
+        $this->resetAfterTest();
+        set_config('outputwidth', 450, 'tiny_molstructure');
+        set_config('outputheight', 275, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertSame(100, $configuration['outputwidth']);
+        $this->assertSame(100, $configuration['outputheight']);
+    }
+
+    /**
+     * Custom output dimensions are passed to Tiny editor instances when enabled.
+     */
+    public function test_custom_output_size_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomoutputsize', 1, 'tiny_molstructure');
+        set_config('outputwidth', 450, 'tiny_molstructure');
+        set_config('outputheight', 275, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablecustomoutputsize']);
+        $this->assertSame(450, $configuration['outputwidth']);
+        $this->assertSame(275, $configuration['outputheight']);
+    }
+
+    /**
+     * Invalid output dimensions fall back to the configured feature defaults.
+     */
+    public function test_invalid_custom_output_size_uses_defaults(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomoutputsize', 1, 'tiny_molstructure');
+        set_config('outputwidth', 49, 'tiny_molstructure');
+        set_config('outputheight', 1001, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertSame(400, $configuration['outputwidth']);
+        $this->assertSame(250, $configuration['outputheight']);
+    }
+
+    /**
+     * Legacy drawing canvas dimensions are retained by default.
+     */
+    public function test_custom_sketcher_size_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablecustomsketchersize']);
+        $this->assertSame(400, $configuration['sketcherwidth']);
+        $this->assertSame(200, $configuration['sketcherheight']);
+    }
+
+    /**
+     * Stored dimensions do not change behaviour while the feature is disabled.
+     */
+    public function test_custom_sketcher_size_is_ignored_when_disabled(): void {
+        $this->resetAfterTest();
+        set_config('sketcherwidth', 600, 'tiny_molstructure');
+        set_config('sketcherheight', 350, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertSame(400, $configuration['sketcherwidth']);
+        $this->assertSame(200, $configuration['sketcherheight']);
+    }
+
+    /**
+     * Custom dimensions are passed to Tiny editor instances when enabled.
+     */
+    public function test_custom_sketcher_size_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomsketchersize', 1, 'tiny_molstructure');
+        set_config('sketcherwidth', 600, 'tiny_molstructure');
+        set_config('sketcherheight', 350, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablecustomsketchersize']);
+        $this->assertSame(600, $configuration['sketcherwidth']);
+        $this->assertSame(350, $configuration['sketcherheight']);
+    }
+
+    /**
+     * A resizable sketcher is disabled by default.
+     */
+    public function test_resizable_sketcher_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enableresizablesketcher']);
+    }
+
+    /**
+     * A resizable sketcher can be enabled for Tiny editor instances.
+     */
+    public function test_resizable_sketcher_setting_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enableresizablesketcher', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enableresizablesketcher']);
+    }
+
+    /**
+     * Reaction drawing is disabled by default.
+     */
+    public function test_reaction_drawing_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablereactions']);
+    }
+
+    /**
+     * Reaction drawing can be enabled for Tiny editor instances.
+     */
+    public function test_reaction_drawing_setting_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enablereactions', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablereactions']);
+    }
+
+    /**
+     * The plugin is available to authenticated users when the editor can store files.
+     */
+    public function test_is_enabled_when_editor_supports_files(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $this->assertTrue(plugininfo::is_enabled(
+            context_system::instance(),
+            ['maxfiles' => -1, 'return_types' => 1],
+            [],
+        ));
+    }
+
+    /**
+     * File picker return types may be supplied separately from the editor options.
+     */
+    public function test_is_enabled_with_separate_filepicker_options(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $this->assertTrue(plugininfo::is_enabled(
+            context_system::instance(),
+            ['maxfiles' => -1],
+            ['return_types' => 3],
+        ));
+    }
+
+    /**
+     * The plugin is unavailable when the editor cannot retain generated images.
+     */
+    public function test_is_disabled_when_editor_does_not_support_files(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $this->assertFalse(plugininfo::is_enabled(
+            context_system::instance(),
+            [],
+            ['return_types' => 3],
+        ));
+    }
+
+    /**
+     * Guests cannot generate draft files.
+     */
+    public function test_is_disabled_for_guest_users(): void {
+        $this->resetAfterTest();
+        $this->setGuestUser();
+
+        $this->assertFalse(plugininfo::is_enabled(
+            context_system::instance(),
+            ['maxfiles' => -1],
+            [],
+        ));
+    }
+}

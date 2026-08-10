@@ -26,12 +26,22 @@
 import MolstructureModal from 'tiny_molstructure/modal';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
+import {component} from 'tiny_molstructure/common';
 import Selectors from 'tiny_molstructure/selectors';
 import * as Config from 'core/config';
+import {get_string as getString} from 'core/str';
 import {insertImage} from "./ketcher";
 import {initCanvas2D} from "./canvas2D";
 import {initCanvas3D} from "./canvas3D";
 import {initCanvasSpectrum} from "./canvasSpectrum";
+import {
+    getOutputImageConfiguration,
+    getSketcherDimensions,
+    isCustomAltTextEnabled,
+    isFitStructureOptionEnabled,
+    isReactionModeEnabled,
+    isResizableSketcherEnabled,
+} from './options';
 /**
  * Handle action
  * @param {TinyMCE} editor
@@ -64,19 +74,44 @@ export const displayDialogue = async(editor) => {
     const iframeBody3D = editorRoot.querySelector(Selectors.elements.canvas3D.selector);
     const iframeBodySpectrum = editorRoot.querySelector(Selectors.elements.canvasSpectrum.selector);
 
-    iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
-        initCanvas2D(editor, iframeBody2D);
+    iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', async function(){
+        const sketcherDimensions = getSketcherDimensions(editor);
+        const outputImageConfiguration = getOutputImageConfiguration(editor);
+        await initCanvas2D(editor, iframeBody2D, {
+            enableReactions: isReactionModeEnabled(editor),
+            enableResizableSketcher: isResizableSketcherEnabled(editor),
+            sketcherWidth: sketcherDimensions.width,
+            sketcherHeight: sketcherDimensions.height,
+            enableCustomOutputSize: outputImageConfiguration.enabled,
+            enableFitStructure: isFitStructureOptionEnabled(editor),
+            sketcherViewerWidth: outputImageConfiguration.width,
+            sketcherViewerHeight: outputImageConfiguration.height,
+        });
+        await initAltTextField(iframeBody2D, isCustomAltTextEnabled(editor));
+        fitIframeToContent(iframeBody2D);
         // Due to firefox need to force tab selection
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').classList.add('active');
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').setAttribute('aria-selected','true');
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('active');
         editorRoot.querySelector('.modal-body .tab-content .tab-pane').classList.add('show');
     });
-    iframeBody3D.onload = ()=> {
-        initCanvas3D(editor, iframeBody3D);
+    iframeBody3D.onload = async() => {
+        const sketcherDimensions = getSketcherDimensions(editor);
+        const outputImageConfiguration = getOutputImageConfiguration(editor);
+        await initCanvas3D(editor, iframeBody3D, {
+            sketcherWidth: sketcherDimensions.width,
+            sketcherHeight: sketcherDimensions.height,
+            enableCustomOutputSize: outputImageConfiguration.enabled,
+            sketcherViewerWidth: outputImageConfiguration.width,
+            sketcherViewerHeight: outputImageConfiguration.height,
+        });
+        await initAltTextField(iframeBody3D, isCustomAltTextEnabled(editor));
+        fitIframeToContent(iframeBody3D);
     };
-    iframeBodySpectrum.onload = ()=> {
-        initCanvasSpectrum(editor, iframeBodySpectrum);
+    iframeBodySpectrum.onload = async() => {
+        await initCanvasSpectrum(editor, iframeBodySpectrum);
+        await initAltTextField(iframeBodySpectrum, isCustomAltTextEnabled(editor));
+        fitIframeToContent(iframeBodySpectrum);
     };
     const tabs = editorRoot.querySelectorAll(Selectors.elements.tabsSelectors);
     tabs.forEach(
@@ -100,6 +135,44 @@ export const displayDialogue = async(editor) => {
         insertImageForActiveTab(editor);
         modalPromises.destroy();
     });
+};
+
+/**
+ * Initialise the optional alternative-text field in a canvas iframe.
+ *
+ * @param {HTMLIFrameElement} iframe The canvas iframe
+ * @param {boolean} enabled Whether the author control is available
+ */
+const initAltTextField = async(iframe, enabled) => {
+    const iframeDocument = iframe.contentDocument;
+    const input = iframeDocument.querySelector(Selectors.elements.altText.input);
+    input.value = await getString('defaultalttext', component);
+    iframeDocument.querySelector(Selectors.elements.altText.label).textContent = await getString('alttext', component);
+    iframeDocument.querySelector(Selectors.elements.altText.container).hidden = !enabled;
+};
+
+/**
+ * Keep an embedded canvas iframe fitted to its content.
+ *
+ * @param {HTMLIFrameElement} iframe The canvas iframe
+ */
+const fitIframeToContent = (iframe) => {
+    const iframeDocument = iframe.contentDocument;
+    const wrapper = iframeDocument.querySelector('.tiny_molstructure_wrapper');
+    if (!wrapper) {
+        return;
+    }
+
+    const resize = () => {
+        const bodyStyle = iframe.contentWindow.getComputedStyle(iframeDocument.body);
+        const marginBottom = parseFloat(bodyStyle.marginBottom) || 0;
+        iframe.style.height = `${Math.ceil(wrapper.offsetTop + wrapper.scrollHeight + marginBottom)}px`;
+    };
+
+    resize();
+    const resizeObserver = new iframe.contentWindow.ResizeObserver(resize);
+    resizeObserver.observe(wrapper);
+    iframe.molstructureResizeObserver = resizeObserver;
 };
 
 const insertImageForActiveTab = (editor) => {

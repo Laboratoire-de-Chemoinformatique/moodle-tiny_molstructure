@@ -33,7 +33,7 @@ import * as Configuration from './configuration';
 
 
 // Setup the tiny_molstructure Plugin.
-export default new Promise(async(resolve) => {
+export default (async() => {
     // Note: The PluginManager.add function does not support asynchronous configuration.
     // Perform any asynchronous configuration here, and then call the PluginManager.add function.
 
@@ -59,5 +59,5 @@ export default new Promise(async(resolve) => {
         return pluginMetadata;
     });
 
-    resolve([`${component}/plugin`, Configuration]);
-});
+    return [`${component}/plugin`, Configuration];
+})();

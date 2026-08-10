@@ -26,6 +26,16 @@
 import {getPluginOptionName} from 'editor_tiny/options';
 import {pluginName} from 'tiny_molstructure/common';
 const contextIdName = getPluginOptionName(pluginName, 'contextid');
+const enableCustomAltTextName = getPluginOptionName(pluginName, 'enablecustomalttext');
+const enableReactionsName = getPluginOptionName(pluginName, 'enablereactions');
+const enableResizableSketcherName = getPluginOptionName(pluginName, 'enableresizablesketcher');
+const enableCustomSketcherSizeName = getPluginOptionName(pluginName, 'enablecustomsketchersize');
+const sketcherWidthName = getPluginOptionName(pluginName, 'sketcherwidth');
+const sketcherHeightName = getPluginOptionName(pluginName, 'sketcherheight');
+const enableCustomOutputSizeName = getPluginOptionName(pluginName, 'enablecustomoutputsize');
+const enableFitStructureName = getPluginOptionName(pluginName, 'enablefitstructure');
+const outputWidthName = getPluginOptionName(pluginName, 'outputwidth');
+const outputHeightName = getPluginOptionName(pluginName, 'outputheight');
 
 /**
  * Register the options for the Tiny Equation plugin.
@@ -38,6 +48,56 @@ export const register = (editor) => {
         processor: 'number',
         "default": 0,
     });
+
+    registerOption(enableCustomAltTextName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(enableReactionsName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(enableResizableSketcherName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(enableCustomSketcherSizeName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(sketcherWidthName, {
+        processor: 'number',
+        "default": 400,
+    });
+
+    registerOption(sketcherHeightName, {
+        processor: 'number',
+        "default": 200,
+    });
+
+    registerOption(enableCustomOutputSizeName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(enableFitStructureName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(outputWidthName, {
+        processor: 'number',
+        "default": 100,
+    });
+
+    registerOption(outputHeightName, {
+        processor: 'number',
+        "default": 100,
+    });
 };
 
 /**
@@ -47,3 +107,58 @@ export const register = (editor) => {
  * @returns {number}
  */
 export const getContextId = (editor) => editor.options.get(contextIdName);
+
+/**
+ * Whether authors can customise generated image alternative text.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isCustomAltTextEnabled = (editor) => editor.options.get(enableCustomAltTextName);
+
+/**
+ * Whether reaction drawing is enabled.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isReactionModeEnabled = (editor) => editor.options.get(enableReactionsName);
+
+/**
+ * Whether users can resize the 2D drawing canvas.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isResizableSketcherEnabled = (editor) => editor.options.get(enableResizableSketcherName);
+
+/**
+ * Get the initial 2D drawing canvas dimensions.
+ *
+ * @param {TinyMCE} editor
+ * @returns {{width: number, height: number}}
+ */
+export const getSketcherDimensions = (editor) => ({
+    width: editor.options.get(sketcherWidthName),
+    height: editor.options.get(sketcherHeightName),
+});
+
+/**
+ * Get the generated 2D image size configuration.
+ *
+ * @param {TinyMCE} editor
+ * @returns {{enabled: boolean, width: number, height: number}}
+ */
+export const getOutputImageConfiguration = (editor) => ({
+    enabled: editor.options.get(enableCustomOutputSizeName),
+    width: editor.options.get(outputWidthName),
+    height: editor.options.get(outputHeightName),
+});
+
+/**
+ * Whether authors can fit a structure to its output image.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isFitStructureOptionEnabled = (editor) => editor.options.get(enableFitStructureName);
