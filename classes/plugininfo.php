@@ -119,7 +119,9 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
      */
     private static function get_dimension_setting(string $name, int $default): int {
         $value = (int) get_config('tiny_molstructure', $name);
-        return $value >= 50 && $value <= 1000 ? $value : $default;
+        return $value >= admin_setting_dimension::MIN_VALUE && $value <= admin_setting_dimension::MAX_VALUE
+            ? $value
+            : $default;
     }
 
     /**
