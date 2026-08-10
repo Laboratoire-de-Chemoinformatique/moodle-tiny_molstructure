@@ -25,6 +25,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig && $ADMIN->fulltree) {
+    $validatedimension = static function (int $value): string {
+        if ($value < 50 || $value > 1000) {
+            return get_string('dimensionsmustbebetween', 'tiny_molstructure', ['min' => 50, 'max' => 1000]);
+        }
+        return '';
+    };
+
     $settings->add(new admin_setting_configcheckbox(
         'tiny_molstructure/enablereactions',
         get_string('enablereactions', 'tiny_molstructure'),
@@ -38,4 +45,31 @@ if ($hassiteconfig && $ADMIN->fulltree) {
         get_string('enableresizablesketcher_desc', 'tiny_molstructure'),
         0,
     ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'tiny_molstructure/enablecustomsketchersize',
+        get_string('enablecustomsketchersize', 'tiny_molstructure'),
+        get_string('enablecustomsketchersize_desc', 'tiny_molstructure'),
+        0,
+    ));
+
+    $setting = new admin_setting_configtext(
+        'tiny_molstructure/sketcherwidth',
+        get_string('sketcherwidth', 'tiny_molstructure'),
+        get_string('sketcherwidth_desc', 'tiny_molstructure'),
+        500,
+        PARAM_INT,
+    );
+    $setting->set_validate_function($validatedimension);
+    $settings->add($setting);
+
+    $setting = new admin_setting_configtext(
+        'tiny_molstructure/sketcherheight',
+        get_string('sketcherheight', 'tiny_molstructure'),
+        get_string('sketcherheight_desc', 'tiny_molstructure'),
+        300,
+        PARAM_INT,
+    );
+    $setting->set_validate_function($validatedimension);
+    $settings->add($setting);
 }

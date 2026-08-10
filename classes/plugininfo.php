@@ -77,6 +77,14 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         array $fpoptions,
         ?editor $editor = null
     ): array {
+        $enablecustomsketchersize = (bool) get_config('tiny_molstructure', 'enablecustomsketchersize');
+        $sketcherwidth = $enablecustomsketchersize
+            ? self::get_dimension_setting('sketcherwidth', 500)
+            : 400;
+        $sketcherheight = $enablecustomsketchersize
+            ? self::get_dimension_setting('sketcherheight', 300)
+            : 200;
+
         if (isset($options['context'])) {
             $context = $options['context'];
         } else {
@@ -86,8 +94,24 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
             'contextid' => $context->id,
             'enablereactions' => (bool) get_config('tiny_molstructure', 'enablereactions'),
             'enableresizablesketcher' => (bool) get_config('tiny_molstructure', 'enableresizablesketcher'),
+            'enablecustomsketchersize' => $enablecustomsketchersize,
+            'sketcherwidth' => $sketcherwidth,
+            'sketcherheight' => $sketcherheight,
         ];
     }
+
+    /**
+     * Get a validated dimension setting.
+     *
+     * @param string $name Setting name
+     * @param int $default Default value when the setting is absent or invalid
+     * @return int
+     */
+    private static function get_dimension_setting(string $name, int $default): int {
+        $value = (int) get_config('tiny_molstructure', $name);
+        return $value >= 50 && $value <= 1000 ? $value : $default;
+    }
+
     /**
      * Whether the plugin is enabled for the editor context.
      *

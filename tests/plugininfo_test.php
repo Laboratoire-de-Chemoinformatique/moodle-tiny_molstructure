@@ -34,6 +34,49 @@ use context_system;
  */
 final class plugininfo_test extends \advanced_testcase {
     /**
+     * Legacy drawing canvas dimensions are retained by default.
+     */
+    public function test_custom_sketcher_size_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablecustomsketchersize']);
+        $this->assertSame(400, $configuration['sketcherwidth']);
+        $this->assertSame(200, $configuration['sketcherheight']);
+    }
+
+    /**
+     * Stored dimensions do not change behaviour while the feature is disabled.
+     */
+    public function test_custom_sketcher_size_is_ignored_when_disabled(): void {
+        $this->resetAfterTest();
+        set_config('sketcherwidth', 600, 'tiny_molstructure');
+        set_config('sketcherheight', 350, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertSame(400, $configuration['sketcherwidth']);
+        $this->assertSame(200, $configuration['sketcherheight']);
+    }
+
+    /**
+     * Custom dimensions are passed to Tiny editor instances when enabled.
+     */
+    public function test_custom_sketcher_size_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enablecustomsketchersize', 1, 'tiny_molstructure');
+        set_config('sketcherwidth', 600, 'tiny_molstructure');
+        set_config('sketcherheight', 350, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablecustomsketchersize']);
+        $this->assertSame(600, $configuration['sketcherwidth']);
+        $this->assertSame(350, $configuration['sketcherheight']);
+    }
+
+    /**
      * A resizable sketcher is disabled by default.
      */
     public function test_resizable_sketcher_defaults_to_disabled(): void {

@@ -28,6 +28,9 @@ import {pluginName} from 'tiny_molstructure/common';
 const contextIdName = getPluginOptionName(pluginName, 'contextid');
 const enableReactionsName = getPluginOptionName(pluginName, 'enablereactions');
 const enableResizableSketcherName = getPluginOptionName(pluginName, 'enableresizablesketcher');
+const enableCustomSketcherSizeName = getPluginOptionName(pluginName, 'enablecustomsketchersize');
+const sketcherWidthName = getPluginOptionName(pluginName, 'sketcherwidth');
+const sketcherHeightName = getPluginOptionName(pluginName, 'sketcherheight');
 
 /**
  * Register the options for the Tiny Equation plugin.
@@ -49,6 +52,21 @@ export const register = (editor) => {
     registerOption(enableResizableSketcherName, {
         processor: 'boolean',
         "default": false,
+    });
+
+    registerOption(enableCustomSketcherSizeName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(sketcherWidthName, {
+        processor: 'number',
+        "default": 400,
+    });
+
+    registerOption(sketcherHeightName, {
+        processor: 'number',
+        "default": 200,
     });
 };
 
@@ -75,3 +93,14 @@ export const isReactionModeEnabled = (editor) => editor.options.get(enableReacti
  * @returns {boolean}
  */
 export const isResizableSketcherEnabled = (editor) => editor.options.get(enableResizableSketcherName);
+
+/**
+ * Get the initial 2D drawing canvas dimensions.
+ *
+ * @param {TinyMCE} editor
+ * @returns {{width: number, height: number}}
+ */
+export const getSketcherDimensions = (editor) => ({
+    width: editor.options.get(sketcherWidthName),
+    height: editor.options.get(sketcherHeightName),
+});
