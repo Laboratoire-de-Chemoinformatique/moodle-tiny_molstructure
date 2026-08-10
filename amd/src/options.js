@@ -27,6 +27,7 @@ import {getPluginOptionName} from 'editor_tiny/options';
 import {pluginName} from 'tiny_molstructure/common';
 const contextIdName = getPluginOptionName(pluginName, 'contextid');
 const enableReactionsName = getPluginOptionName(pluginName, 'enablereactions');
+const enableResizableSketcherName = getPluginOptionName(pluginName, 'enableresizablesketcher');
 
 /**
  * Register the options for the Tiny Equation plugin.
@@ -41,6 +42,11 @@ export const register = (editor) => {
     });
 
     registerOption(enableReactionsName, {
+        processor: 'boolean',
+        "default": false,
+    });
+
+    registerOption(enableResizableSketcherName, {
         processor: 'boolean',
         "default": false,
     });
@@ -61,3 +67,11 @@ export const getContextId = (editor) => editor.options.get(contextIdName);
  * @returns {boolean}
  */
 export const isReactionModeEnabled = (editor) => editor.options.get(enableReactionsName);
+
+/**
+ * Whether users can resize the 2D drawing canvas.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isResizableSketcherEnabled = (editor) => editor.options.get(enableResizableSketcherName);

@@ -34,6 +34,29 @@ use context_system;
  */
 final class plugininfo_test extends \advanced_testcase {
     /**
+     * A resizable sketcher is disabled by default.
+     */
+    public function test_resizable_sketcher_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enableresizablesketcher']);
+    }
+
+    /**
+     * A resizable sketcher can be enabled for Tiny editor instances.
+     */
+    public function test_resizable_sketcher_setting_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enableresizablesketcher', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enableresizablesketcher']);
+    }
+
+    /**
      * Reaction drawing is disabled by default.
      */
     public function test_reaction_drawing_defaults_to_disabled(): void {

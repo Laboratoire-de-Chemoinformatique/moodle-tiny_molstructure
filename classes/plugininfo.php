@@ -85,6 +85,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         return [
             'contextid' => $context->id,
             'enablereactions' => (bool) get_config('tiny_molstructure', 'enablereactions'),
+            'enableresizablesketcher' => (bool) get_config('tiny_molstructure', 'enableresizablesketcher'),
         ];
     }
     /**

@@ -30,6 +30,7 @@ import {component} from 'tiny_molstructure/common';
 export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
   const {
     enableReactions = false,
+    enableResizableSketcher = false,
     sketcherWidth = 400,
     sketcherHeight = 200,
     sketcherViewerWidth = 100,
@@ -42,7 +43,12 @@ export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
 
   // Main ketcher.
   const sketcher = new ChemDoodle.SketcherCanvas('sketcher', sketcherWidth, sketcherHeight,
-    {useServices:false, requireStartingAtom: false, oneMolecule: !enableReactions});
+    {
+      useServices: false,
+      requireStartingAtom: false,
+      oneMolecule: !enableReactions,
+      resizable: enableResizableSketcher,
+    });
   //ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
   sketcher.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher.styles.atoms_useJMOLColors = true;

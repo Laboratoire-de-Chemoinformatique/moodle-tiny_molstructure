@@ -31,4 +31,11 @@ if ($hassiteconfig && $ADMIN->fulltree) {
         get_string('enablereactions_desc', 'tiny_molstructure'),
         0,
     ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'tiny_molstructure/enableresizablesketcher',
+        get_string('enableresizablesketcher', 'tiny_molstructure'),
+        get_string('enableresizablesketcher_desc', 'tiny_molstructure'),
+        0,
+    ));
 }
