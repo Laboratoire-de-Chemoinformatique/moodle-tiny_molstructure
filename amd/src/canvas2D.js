@@ -27,12 +27,14 @@ import Selectors from 'tiny_molstructure/selectors';
 import {get_string as getString} from 'core/str';
 import {component} from 'tiny_molstructure/common';
 
-export const initCanvas2D = async(editor,
-                                  iframeBody,
-                                  sketcherWidth=400,
-                                  sketcherHeight=200,
-                                  sketcherViewerWidth=100,
-                                  sketcherViewerHeight=100) => {
+export const initCanvas2D = async(editor, iframeBody, configuration = {}) => {
+  const {
+    enableReactions = false,
+    sketcherWidth = 400,
+    sketcherHeight = 200,
+    sketcherViewerWidth = 100,
+    sketcherViewerHeight = 100,
+  } = configuration;
   const iframeContent = iframeBody.contentDocument;
   let ChemDoodle = iframeBody.contentWindow.ChemDoodleVar;
   ChemDoodle.ELEMENT['H'].jmolColor = 'black';
@@ -40,7 +42,7 @@ export const initCanvas2D = async(editor,
 
   // Main ketcher.
   const sketcher = new ChemDoodle.SketcherCanvas('sketcher', sketcherWidth, sketcherHeight,
-    {useServices:false, requireStartingAtom: false, oneMolecule:true});
+    {useServices:false, requireStartingAtom: false, oneMolecule: !enableReactions});
   //ChemDoodle.readJSON("{\"m\":[{\"a\":[]}]}");
   sketcher.styles.atoms_displayTerminalCarbonLabels_2D = true;
   sketcher.styles.atoms_useJMOLColors = true;

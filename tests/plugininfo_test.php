@@ -34,6 +34,29 @@ use context_system;
  */
 final class plugininfo_test extends \advanced_testcase {
     /**
+     * Reaction drawing is disabled by default.
+     */
+    public function test_reaction_drawing_defaults_to_disabled(): void {
+        $this->resetAfterTest();
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertFalse($configuration['enablereactions']);
+    }
+
+    /**
+     * Reaction drawing can be enabled for Tiny editor instances.
+     */
+    public function test_reaction_drawing_setting_is_passed_to_configuration(): void {
+        $this->resetAfterTest();
+        set_config('enablereactions', 1, 'tiny_molstructure');
+
+        $configuration = plugininfo::get_plugin_configuration_for_context(context_system::instance(), [], []);
+
+        $this->assertTrue($configuration['enablereactions']);
+    }
+
+    /**
      * The plugin is available to authenticated users when the editor can store files.
      */
     public function test_is_enabled_when_editor_supports_files(): void {

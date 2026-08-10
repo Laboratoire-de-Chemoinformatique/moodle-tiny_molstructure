@@ -32,6 +32,7 @@ import {insertImage} from "./ketcher";
 import {initCanvas2D} from "./canvas2D";
 import {initCanvas3D} from "./canvas3D";
 import {initCanvasSpectrum} from "./canvasSpectrum";
+import {isReactionModeEnabled} from './options';
 /**
  * Handle action
  * @param {TinyMCE} editor
@@ -65,7 +66,9 @@ export const displayDialogue = async(editor) => {
     const iframeBodySpectrum = editorRoot.querySelector(Selectors.elements.canvasSpectrum.selector);
 
     iframeBody2D.contentWindow.addEventListener('DOMContentLoaded', function(){
-        initCanvas2D(editor, iframeBody2D);
+        initCanvas2D(editor, iframeBody2D, {
+            enableReactions: isReactionModeEnabled(editor),
+        });
         // Due to firefox need to force tab selection
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').classList.add('active');
         editorRoot.querySelector('.modal-body .nav-tabs .nav-item .nav-link').setAttribute('aria-selected','true');

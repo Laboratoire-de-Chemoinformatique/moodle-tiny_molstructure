@@ -26,6 +26,7 @@
 import {getPluginOptionName} from 'editor_tiny/options';
 import {pluginName} from 'tiny_molstructure/common';
 const contextIdName = getPluginOptionName(pluginName, 'contextid');
+const enableReactionsName = getPluginOptionName(pluginName, 'enablereactions');
 
 /**
  * Register the options for the Tiny Equation plugin.
@@ -38,6 +39,11 @@ export const register = (editor) => {
         processor: 'number',
         "default": 0,
     });
+
+    registerOption(enableReactionsName, {
+        processor: 'boolean',
+        "default": false,
+    });
 };
 
 /**
@@ -47,3 +53,11 @@ export const register = (editor) => {
  * @returns {number}
  */
 export const getContextId = (editor) => editor.options.get(contextIdName);
+
+/**
+ * Whether reaction drawing is enabled.
+ *
+ * @param {TinyMCE} editor
+ * @returns {boolean}
+ */
+export const isReactionModeEnabled = (editor) => editor.options.get(enableReactionsName);
